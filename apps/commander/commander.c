@@ -1289,6 +1289,51 @@ float battery_remaining_estimate_voltage(float voltage)
 	return ret;
 }
 
+int _override_switch_last = 0;
+float _override_switch_wiggle_count = 0;
+uint64_t _last_mode_sw_time = 0;
+
+void calibration_actions_manual(struct manual_control_setpoint_s *sp, int status_pub, struct vehicle_status_s *status)
+{
+	/* only trigger if not armed */
+	if (!current_status.flag_system_armed) {
+
+		bool calibrate_mag = false;
+
+		/**
+		 * Step 1: Identify desired stick action
+		 */
+
+		/* use int rounding to round anything below 0.5f to 0 */
+		int sw = sp->manual_override_switch * 2.0f;
+
+		/* only count the two extreme positions, ignore the center / zero position */
+		if (sw != 0 && _override_switch_last != sw) {
+			/* only respond to switch changes that come faster than 0.3 seconds */
+			if (hrt_absolute_time() - _last_mode_sw_time < 300000) {
+				_override_switch_wiggle_count++;
+			} else {
+				_override_switch_wiggle_count = 0;
+			}
+
+			_override_switch_last = sw;
+			_last_mode_sw_time = hrt_absolute_time();
+		}
+
+		if (_override_switch_wiggle_count > 6 && _override_switch_wiggle_count < 10) {
+			calibrate_mag = true;
+			_override_switch_wiggle_count = 0;
+		}
+
+		/**
+		 * Step 2: Execute calibration action(s)
+		 */
+
+		if (calibrate_mag)
+			do_mag_calibration(status_pub, &current_status);
+	}
+}
+
 static void
 usage(const char *reason)
 {
@@ -1862,6 +1907,9 @@ int commander_thread_main(int argc, char *argv[])
 			/* Start RC state check */
 
 			if ((hrt_absolute_time() - sp_man.timestamp) < 100000) {
+
+				/* check if calibration actions should be triggered */
+				calibration_actions_manual(&sp_man, stat_pub, &current_status);
 
 				// /*
 				//  * Check if manual control modes have to be switched
