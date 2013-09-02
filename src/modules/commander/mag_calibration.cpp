@@ -45,13 +45,16 @@
 #include <string.h>
 #include <poll.h>
 #include <math.h>
+#include <float.h>
 #include <fcntl.h>
 #include <drivers/drv_hrt.h>
 #include <uORB/topics/sensor_combined.h>
 #include <drivers/drv_mag.h>
+#include <drivers/drv_gyro.h>
 #include <mavlink/mavlink_log.h>
 #include <systemlib/param/param.h>
 #include <systemlib/err.h>
+#include <mathlib/mathlib.h>
 
 /* oddly, ERROR is not defined for c++ */
 #ifdef ERROR
@@ -59,18 +62,86 @@
 #endif
 static const int ERROR = -1;
 
+struct rot_lookup
+{
+    uint16_t roll;
+    uint16_t pitch;
+    uint16_t yaw;
+};
+
+void calculate_rotation_errors(float dt, math::Vector3 mag, math::Vector3 gyro,
+	math::Vector3 last_mag, float errors[], const struct rot_lookup rotations[], unsigned n_rotations);
+
+const struct rot_lookup rot_lookup[] =
+{
+    {  0,   0,   0 },
+    {  0,   0,  45 },
+    {  0,   0,  90 },
+    {  0,   0, 135 },
+    {  0,   0, 180 },
+    {  0,   0, 225 },
+    {  0,   0, 270 },
+    {  0,   0, 315 },
+    {180,   0,   0 },
+    {180,   0,  45 },
+    {180,   0,  90 },
+    {180,   0, 135 },
+    {  0, 180,   0 },
+    {180,   0, 225 },
+    {180,   0, 270 },
+    {180,   0, 315 },
+    { 90,   0,   0 },
+    { 90,   0,  45 },
+    { 90,   0,  90 },
+    { 90,   0, 135 },
+    {270,   0,   0 },
+    {270,   0,  45 },
+    {270,   0,  90 },
+    {270,   0, 135 },
+    {  0,  90,   0 },
+    {  0, 270,   0 }
+};
+
+void calculate_rotation_errors(float dt, math::Vector3 mag, math::Vector3 gyro,
+	math::Vector3 last_mag, float errors[], const struct rot_lookup rotations[], unsigned n_rotations)
+{
+	for (unsigned i = 0; i < n_rotations; i++)
+	{
+		math::EulerAngles e(rotations[i].roll, rotations[i].pitch, rotations[i].yaw);
+		if (static_cast<int>(e.getPhi()) % 90 != 0 ||
+			static_cast<int>(e.getTheta()) % 90 != 0 ||
+			static_cast<int>(e.getPsi()) % 90 != 0) {
+			/* ignore all non-90 degree rotations for robustness */
+			continue;
+		}
+
+		math::Dcm R(e);
+
+		math::Vector3 gyroR = gyro * dt;
+
+		math::Dcm Rdt(math::EulerAngles(gyroR(0), gyroR(1), gyroR(2)));
+
+		math::Vector magR1 = R * mag;
+		math::Vector magR2 = R.transpose() * R * mag;
+		math::Vector errorVec = (magR1 - magR2);
+		errors[i] += errorVec.norm();
+	}
+}
+
 int do_mag_calibration(int mavlink_fd)
 {
 	mavlink_log_info(mavlink_fd, "please put the system in a rest position and wait.");
 
 	int sub_mag = orb_subscribe(ORB_ID(sensor_mag));
 	struct mag_report mag;
+	int sub_gyro = orb_subscribe(ORB_ID(sensor_gyro));
+	struct gyro_report gyro;
 
 	/* 45 seconds */
-	uint64_t calibration_interval = 45 * 1000 * 1000;
+	uint64_t calibration_interval = 20 * 1000 * 1000;
 
 	/* maximum 2000 values */
-	const unsigned int calibration_maxcount = 500;
+	const unsigned int calibration_maxcount = 1000;
 	unsigned int calibration_counter = 0;
 
 	/* limit update rate to get equally spaced measurements over time (in ms) */
@@ -116,6 +187,11 @@ int do_mag_calibration(int mavlink_fd)
 	float *y = (float *)malloc(sizeof(float) * calibration_maxcount);
 	float *z = (float *)malloc(sizeof(float) * calibration_maxcount);
 
+	/* build rotations list */
+	float errors[sizeof(rot_lookup)/sizeof(rot_lookup[0])];
+	orb_copy(ORB_ID(sensor_mag), sub_mag, &mag);
+	math::Vector3 magVLast(mag.x, mag.y, mag.z);
+
 	if (x == NULL || y == NULL || z == NULL) {
 		warnx("mag cal failed: out of memory");
 		mavlink_log_info(mavlink_fd, "mag cal failed: out of memory");
@@ -126,6 +202,7 @@ int do_mag_calibration(int mavlink_fd)
 	mavlink_log_info(mavlink_fd, "scale calibration completed, dynamic calibration starting..");
 
 	unsigned poll_errcount = 0;
+	uint64_t last_time = hrt_absolute_time();
 
 	while (hrt_absolute_time() < calibration_deadline &&
 	       calibration_counter < calibration_maxcount) {
@@ -155,10 +232,19 @@ int do_mag_calibration(int mavlink_fd)
 
 		if (poll_ret > 0) {
 			orb_copy(ORB_ID(sensor_mag), sub_mag, &mag);
+			orb_copy(ORB_ID(sensor_gyro), sub_gyro, &gyro);
 
 			x[calibration_counter] = mag.x;
 			y[calibration_counter] = mag.y;
 			z[calibration_counter] = mag.z;
+
+			float dt = (hrt_absolute_time() - last_time) / 1e3f / 1e3f;
+			last_time = hrt_absolute_time();
+
+			math::Vector3 magV(mag.x, mag.y, mag.z);
+			math::Vector3 gyroV(gyro.x, gyro.y, gyro.z);
+
+			calculate_rotation_errors(dt, magV, gyroV, magVLast, errors, rot_lookup, sizeof(rot_lookup)/sizeof(rot_lookup[0]));
 
 			calibration_counter++;
 			if (calibration_counter % (calibration_maxcount / 20) == 0)
@@ -170,11 +256,13 @@ int do_mag_calibration(int mavlink_fd)
 		}
 
 		if (poll_errcount > 1000) {
-			mavlink_log_info(mavlink_fd, "ERROR: Failed reading mag sensor");
+			mavlink_log_emergency(mavlink_fd, "ERROR: Failed reading mag sensor");
 			close(sub_mag);
+			close(sub_gyro);
 			free(x);
 			free(y);
 			free(z);
+
 			return ERROR;
 		}
 
@@ -194,6 +282,19 @@ int do_mag_calibration(int mavlink_fd)
 	free(y);
 	free(z);
 
+	/* find the smallest error */
+	float min_error = FLT_MAX;
+	int min_error_index = 0;
+
+	for (unsigned i = 0; i < sizeof(rot_lookup)/sizeof(rot_lookup[0]); i++) {
+		if (errors[i] < min_error) {
+			min_error_index = i;
+			min_error = errors[i];
+		}
+	}
+	warnx("detected autopilot to mag rotation: #%u", min_error_index);
+	mavlink_log_info(mavlink_fd, "detected autopilot to mag rotation: #%u", min_error_index);
+
 	if (isfinite(sphere_x) && isfinite(sphere_y) && isfinite(sphere_z)) {
 
 		fd = open(MAG_DEVICE_PATH, 0);
@@ -211,6 +312,11 @@ int do_mag_calibration(int mavlink_fd)
 			warn("WARNING: failed to set scale / offsets for mag");
 
 		close(fd);
+
+		/* announce and set rotation */
+		if (param_set(param_find("SENS_MAG_EXT_ROT"), &(min_error_index))) {
+			warnx("Setting ext mag rotation failed!\n");
+		}
 
 		/* announce and set new offset */
 
