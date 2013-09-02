@@ -326,7 +326,7 @@ int do_mag_calibration(int mavlink_fd)
 		close(fd);
 
 		/* announce and set rotation */
-		if (param_set(param_find("SENS_MAG_EXT_ROT"), &(min_error_index))) {
+		if (param_set(param_find("SENS_EXT_MAG_ROT"), &(min_error_index))) {
 			warnx("Setting ext mag rotation failed!\n");
 		}
 
