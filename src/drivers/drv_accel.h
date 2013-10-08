@@ -63,6 +63,13 @@ struct accel_report {
 	int16_t y_raw;
 	int16_t z_raw;
 	int16_t temperature_raw;
+
+	/* local integrals */
+	int integral_dt;
+	int integral_size;
+	float integral_x[5];
+	float integral_y[5];
+	float integral_z[5];
 };
 
 /** accel scaling factors; Vout = (Vin * Vscale) + Voffset */

@@ -52,9 +52,9 @@
  */
 struct gyro_report {
 	uint64_t timestamp;
-	float x;		/**< angular velocity in the NED X board axis in rad/s */
-	float y;		/**< angular velocity in the NED Y board axis in rad/s */
-	float z;		/**< angular velocity in the NED Z board axis in rad/s */
+	float x;		/**< angular velocity around the NED X board axis in rad/s */
+	float y;		/**< angular velocity around the NED Y board axis in rad/s */
+	float z;		/**< angular velocity around the NED Z board axis in rad/s */
 	float temperature;	/**< temperature in degrees celcius */
 	float range_rad_s;
 	float scaling;
@@ -63,6 +63,13 @@ struct gyro_report {
 	int16_t y_raw;
 	int16_t z_raw;
 	int16_t temperature_raw;
+
+	/* local integrals */
+	int integral_dt;
+	int integral_size;
+	float integral_x[5];
+	float integral_y[5];
+	float integral_z[5];
 };
 
 /** gyro scaling factors; Vout = (Vin * Vscale) + Voffset */
