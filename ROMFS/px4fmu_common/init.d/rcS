@@ -40,6 +40,11 @@ then
 	echo "[init] reading /fs/microsd/etc/rc.txt"
 	sh /fs/microsd/etc/rc.txt
 fi
+# Check for a jig
+if [ -f /fs/microsd/jig.txt ]
+then
+	sh /etc/init.d/rc.jig
+fi
 
 # if this is an APM build then there will be a rc.APM script
 # from an EXTERNAL_SCRIPTS build option

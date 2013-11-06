@@ -1,7 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
- *   Author: @author Lorenz Meier <lm@inf.ethz.ch>
+ *   Copyright (C) 2013 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,6 +34,8 @@
 /**
  * @file tests_main.c
  * Tests main file, loads individual tests.
+ *
+ * @author Lorenz Meier <lm@inf.ethz.ch>
  */
 
 #include <nuttx/config.h>
@@ -111,6 +112,7 @@ const struct {
 	{"bson",		test_bson,	0},
 	{"file",		test_file,	0},
 	{"mixer",		test_mixer,	OPT_NOJIGTEST | OPT_NOALLTEST},
+	{"px4io",		test_px4io,	OPT_NOJIGTEST | OPT_NOALLTEST},
 	{"help",		test_help,	OPT_NOALLTEST | OPT_NOHELP | OPT_NOJIGTEST},
 	{NULL,			NULL, 		0}
 };

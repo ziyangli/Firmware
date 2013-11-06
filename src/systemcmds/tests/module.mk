@@ -26,4 +26,5 @@ SRCS			 = test_adc.c \
 			   test_mixer.cpp \
 			   tests_file.c \
 			   tests_main.c \
-			   tests_param.c
+			   tests_param.c \
+			   test_px4io.c
