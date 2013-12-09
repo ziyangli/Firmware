@@ -176,19 +176,19 @@ __EXPORT void map_projection_reproject(float x, float y, double *lat, double *lo
 
 __EXPORT float get_distance_to_next_waypoint(double lat_now, double lon_now, double lat_next, double lon_next)
 {
-	double lat_now_rad = lat_now / 180.0d * M_PI;
-	double lon_now_rad = lon_now / 180.0d * M_PI;
-	double lat_next_rad = lat_next / 180.0d * M_PI;
-	double lon_next_rad = lon_next / 180.0d * M_PI;
+	double lat_now_rad = lat_now / 180.0 * M_PI;
+	double lon_now_rad = lon_now / 180.0 * M_PI;
+	double lat_next_rad = lat_next / 180.0 * M_PI;
+	double lon_next_rad = lon_next / 180.0 * M_PI;
 
 
 	double d_lat = lat_next_rad - lat_now_rad;
 	double d_lon = lon_next_rad - lon_now_rad;
 
-	double a = sin(d_lat / 2.0d) * sin(d_lat / 2.0d) + sin(d_lon / 2.0d) * sin(d_lon / 2.0d) * cos(lat_now_rad) * cos(lat_next_rad);
-	double c = 2.0d * atan2(sqrt(a), sqrt(1.0d - a));
+	double a = sin(d_lat / 2.0) * sin(d_lat / 2.0) + sin(d_lon / 2.0) * sin(d_lon / 2.0) * cos(lat_now_rad) * cos(lat_next_rad);
+	double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 
-	const double radius_earth = 6371000.0d;
+	const double radius_earth = 6371000.0;
 	return radius_earth * c; 
 }
 
@@ -259,7 +259,7 @@ __EXPORT int get_distance_to_line(struct crosstrack_error_s * crosstrack_error, 
 	crosstrack_error->bearing = 0.0f;
 
 	// Return error if arguments are bad
-	if (lat_now == 0.0d || lon_now == 0.0d || lat_start == 0.0d || lon_start == 0.0d || lat_end == 0.0d || lon_end == 0.0d) return return_value;
+	if (lat_now == 0.0 || lon_now == 0.0 || lat_start == 0.0 || lon_start == 0.0 || lat_end == 0.0 || lon_end == 0.0) return return_value;
 
 	bearing_end = get_bearing_to_next_waypoint(lat_now, lon_now, lat_end, lon_end);
 	bearing_track = get_bearing_to_next_waypoint(lat_start, lon_start, lat_end, lon_end);
@@ -310,7 +310,7 @@ __EXPORT int get_distance_to_arc(struct crosstrack_error_s * crosstrack_error, d
 	crosstrack_error->bearing = 0.0f;
 
 	// Return error if arguments are bad
-	if (lat_now == 0.0d || lon_now == 0.0d || lat_center == 0.0d || lon_center == 0.0d || radius == 0.0d) return return_value;
+	if (lat_now == 0.0 || lon_now == 0.0 || lat_center == 0.0 || lon_center == 0.0 || radius == 0.0) return return_value;
 
 
 	if (arc_sweep >= 0) {
@@ -362,10 +362,10 @@ __EXPORT int get_distance_to_arc(struct crosstrack_error_s * crosstrack_error, d
 		float start_disp_y = radius * cos(arc_start_bearing);
 		float end_disp_x = radius * sin(_wrapPI(arc_start_bearing + arc_sweep));
 		float end_disp_y = radius * cos(_wrapPI(arc_start_bearing + arc_sweep));
-		float lon_start = lon_now + start_disp_x / 111111.0d;
-		float lat_start = lat_now + start_disp_y * cos(lat_now) / 111111.0d;
-		float lon_end = lon_now + end_disp_x / 111111.0d;
-		float lat_end = lat_now + end_disp_y * cos(lat_now) / 111111.0d;
+		float lon_start = lon_now + start_disp_x / 111111.0;
+		float lat_start = lat_now + start_disp_y * cos(lat_now) / 111111.0;
+		float lon_end = lon_now + end_disp_x / 111111.0;
+		float lat_end = lat_now + end_disp_y * cos(lat_now) / 111111.0;
 		float dist_to_start = get_distance_to_next_waypoint(lat_now, lon_now, lat_start, lon_start);
 		float dist_to_end = get_distance_to_next_waypoint(lat_now, lon_now, lat_end, lon_end);
 

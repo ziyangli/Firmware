@@ -1,7 +1,7 @@
 ############################################################################
-# configs/px4fmu/src/Makefile
+# configs/sim/src/Makefile
 #
-#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007, 2008, 2011-2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,32 +33,23 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+include $(TOPDIR)/Make.defs
 
-CFLAGS		+= -I$(TOPDIR)/sched
+CFLAGS += -I$(TOPDIR)/sched
 
-ASRCS		= 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
+ASRCS = 
+AOBJS = $(ASRCS:.S=$(OBJEXT))
 
-CSRCS		= up_sim.c up_serial.c
-COBJS		= $(CSRCS:.c=$(OBJEXT))
-
-HOSTSRCS    = up_hosttcp.c
-HOSTOBJS = $(HOSTSRCS:.c=$(OBJEXT))
-
-SRCS		= $(ASRCS) $(CSRCS) $(HOSTSRCS)
-OBJS		= $(AOBJS) $(COBJS) $(HOSTOBJS)
-
-ARCH_SRCDIR	= $(TOPDIR)/arch/$(CONFIG_ARCH)/src
-ifeq ($(WINTOOL),y)
-  CFLAGS	+= -I "${shell cygpath -w $(ARCH_SRCDIR)/chip}" \
-  		   -I "${shell cygpath -w $(ARCH_SRCDIR)/common}" \
-  		   -I "${shell cygpath -w $(ARCH_SRCDIR)/armv7-m}"
-else
-  CFLAGS	+= -I$(ARCH_SRCDIR)/chip -I$(ARCH_SRCDIR)/common -I$(ARCH_SRCDIR)/armv7-m
+CSRCS = 
+ifeq ($(CONFIG_SIM_X11FB),y)
+ifeq ($(CONFIG_SIM_TOUCHSCREEN),y)
+  CSRCS += up_touchscreen.c
 endif
+endif
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-HOSTCFLAGS=
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 all: libboard$(LIBEXT)
 
@@ -68,28 +59,24 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(LINKOBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-$(HOSTOBJS): %$(OBJEXT): %.c
-	$(Q) echo "CC:  $<"
-	$(Q) $(CC) -c $(HOSTCFLAGS) $< -o $@
-
 libboard$(LIBEXT): $(OBJS)
-	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
-	done ; )
-	touch $@
+	$(Q) $(AR) $@ # Create an empty archive
+ifneq ($(OBJS),)
+	$(call ARCHIVE, $@, $(OBJS))
+endif
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
+	$(Q) $(MKDEP) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
 depend: .depend
 
 clean:
-	@rm -f libboard$(LIBEXT) *~ .*.swp
+	$(call DELFILE, libboard$(LIBEXT))
 	$(call CLEAN)
 
 distclean: clean
-	@rm -f Make.dep .depend
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
 
 -include Make.dep
-

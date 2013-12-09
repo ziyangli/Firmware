@@ -47,6 +47,7 @@
 #include <math.h>
 
 #include "../Vector.hpp"
+#include "../test/test.hpp"
 
 namespace math
 {

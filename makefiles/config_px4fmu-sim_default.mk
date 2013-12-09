@@ -26,7 +26,7 @@ MODULES		+= modules/navigator
 #
 MODULES		+= modules/systemlib
 MODULES		+= modules/systemlib/mixer
-MODULES		+= modules/controllib
+#MODULES		+= modules/controllib
 MODULES		+= modules/uORB
 
 #

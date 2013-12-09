@@ -69,6 +69,10 @@
 #include <systemlib/systemlib.h>
 #include <mathlib/mathlib.h>
 
+#ifndef nullptr
+ #define nullptr 0
+#endif
+
 /**
  * navigator app start / stop handling function
  *

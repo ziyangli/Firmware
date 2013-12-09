@@ -89,8 +89,8 @@ INSTRUMENTATIONDEFINES	 =
 # Language-specific flags
 #
 ARCHCFLAGS		 = -std=gnu99
-ARCHCXXFLAGS		 = -fno-exceptions -fno-rtti
-# -std=gnu++0x
+ARCHCXXFLAGS		 = -fno-exceptions -fno-rtti -std=c++11
+#-std=gnu++0x
 
 # Generic warnings
 #

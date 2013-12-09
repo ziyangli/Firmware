@@ -49,6 +49,7 @@
 
 #include "../Vector.hpp"
 #include "../Matrix.hpp"
+#include "../test/test.hpp"
 
 namespace math
 {

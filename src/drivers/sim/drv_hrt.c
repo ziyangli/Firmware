@@ -57,7 +57,7 @@
 #include <time.h>
 #include <queue.h>
 #include <errno.h>
-#include <string.h>
+//#include <string.h>
 
 /*#include <arch/board/board.h>*/
 #include <drivers/drv_hrt.h>
@@ -97,8 +97,6 @@
  * in counts to a time in microseconds.
  */
 #define HRT_COUNTER_SCALE(_c)	(_c)
-
-/*
 
 /*
  * Queue of callout entries.
