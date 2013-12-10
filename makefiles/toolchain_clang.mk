@@ -1,5 +1,5 @@
 #
-#   Copyright (C) 2012 PX4 Development Team. All rights reserved.
+#   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -37,11 +37,11 @@
 
 # Toolchain commands. Normally only used inside this file.
 #
-CROSSDEV		 =
+CROSSDEV		 = ""
 
-CC			 = $(CROSSDEV)gcc
-CXX			 = $(CROSSDEV)g++
-CPP			 = $(CROSSDEV)gcc -E
+CC			 = $(CROSSDEV)clang
+CXX			 = $(CROSSDEV)clang++
+CPP			 = $(CROSSDEV)clang -E
 LD			 = $(CROSSDEV)ld
 AR			 = $(CROSSDEV)ar rcs
 NM			 = $(CROSSDEV)nm
@@ -75,10 +75,8 @@ ARCHDEFINES		+= -DCONFIG_ARCH_BOARD_$(CONFIG_BOARD)
 ARCHOPTIMIZATION	 = $(MAXOPTIMIZATION) \
 			   -g \
 			   -fno-strict-aliasing \
-			   -fno-strength-reduce \
 			   -fomit-frame-pointer \
    			   -funsafe-math-optimizations \
-   			   -fno-builtin-printf \
    			   -ffunction-sections \
    			   -fdata-sections
 
@@ -119,7 +117,7 @@ ARCHWARNINGSXX		 = $(ARCHWARNINGS)
 
 # pull in *just* libm from the toolchain ... this is grody
 LIBM			:= $(shell $(CC) $(ARCHCPUFLAGS) -print-file-name=libm.a)
-EXTRA_LIBS		+= $(LIBM)
+EXTRA_LIBS		+= #$(LIBM)
 
 # Flags we pass to the C compiler
 #
@@ -157,11 +155,9 @@ AFLAGS			 = $(CFLAGS) -D__ASSEMBLY__ \
 
 # Flags we pass to the linker
 #
-LDFLAGS			+= --warn-common \
-			   --gc-sections \
-			   $(EXTRALDFLAGS) \
-			   $(addprefix -T,$(LDSCRIPT)) \
+LDFLAGS			+= $(EXTRALDFLAGS) \
 			   $(addprefix -L,$(LIB_DIRS))
+#$(addprefix -T,$(LDSCRIPT)) \
 
 # Compiler support library
 #
@@ -222,8 +218,11 @@ endef
 define LINK
 	@$(ECHO) "LINK:    $1"
 	@$(MKDIR) -p $(dir $1)
-	$(Q) $(LD) $(LDFLAGS) -Map $1.map -o $1 --start-group $2 $(LIBS) $(EXTRA_LIBS) $(LIBGCC) --end-group
+	$(Q) $(LD) $(LDFLAGS) -o $1 -arch x86_64 $2 $(LIBS) $(EXTRA_LIBS) -lm
+#$(LIBGCC)
 endef
+#-Map $1.map 
+#--start-group $2 $(LIBS) $(EXTRA_LIBS) $(LIBGCC) --end-group
 
 # Convert $1 from a linked object to a raw binary in $2
 #
@@ -263,7 +262,7 @@ define BIN_TO_OBJ
 	@$(MKDIR) -p $(dir $2)
 	$(Q) $(ECHO) > $2.c
 	$(call COMPILE,$2.c,$2.c.o)
-	$(Q) $(LD) -r -o $2 $2.c.o -b binary $1
+	$(Q) $(LD) -r -o $2 $2.c.o $1
 	$(Q) $(OBJCOPY) $2 \
 		--redefine-sym $(call BIN_SYM_PREFIX,$1)_start=$3 \
 		--redefine-sym $(call BIN_SYM_PREFIX,$1)_size=$3_len \

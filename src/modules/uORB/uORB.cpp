@@ -361,7 +361,11 @@ ORBDevNode::ioctl(struct file *filp, int cmd, unsigned long arg)
 		return OK;
 
 	case ORBIOCGADVERTISER:
+		#ifdef CONFIG_ARCH_SIM
+		*(unsigned long *)arg = (unsigned long)this;
+		#else
 		*(uintptr_t *)arg = (uintptr_t)this;
+		#endif
 		return OK;
 
 	default:
@@ -849,7 +853,11 @@ node_advertise(const struct orb_metadata *meta)
 		goto out;
 
 	/* advertise the object */
+	#ifdef CONFIG_ARCH_SIM
+	ret = ioctl(fd, ORBIOCADVERTISE, (unsigned long)meta);
+	#else
 	ret = ioctl(fd, ORBIOCADVERTISE, (unsigned long)(uintptr_t)meta);
+	#endif
 
 	/* it's OK if it already exists */
 	if ((OK != ret) && (EEXIST == errno))
@@ -991,13 +999,21 @@ orb_copy(const struct orb_metadata *meta, int handle, void *buffer)
 int
 orb_check(int handle, bool *updated)
 {
+	#ifdef CONFIG_ARCH_SIM
+	return ioctl(handle, ORBIOCUPDATED, (unsigned long)updated);
+	#else
 	return ioctl(handle, ORBIOCUPDATED, (unsigned long)(uintptr_t)updated);
+	#endif
 }
 
 int
 orb_stat(int handle, uint64_t *time)
 {
+	#ifdef CONFIG_ARCH_SIM
+	return ioctl(handle, ORBIOCLASTUPDATE, (unsigned long)time);
+	#else
 	return ioctl(handle, ORBIOCLASTUPDATE, (unsigned long)(uintptr_t)time);
+	#endif
 }
 
 int

@@ -55,7 +55,7 @@ INCLUDE_DIRS	+= math/arm
 SRCS		+= math/arm/Vector.cpp \
 		   math/arm/Matrix.cpp
 else
-#INCLUDE_DIRS	+= math/generic
-#SRCS		+= math/generic/Vector.cpp \
-#		   math/generic/Matrix.cpp
+INCLUDE_DIRS	+= math/generic
+SRCS		+= math/generic/Vector.cpp \
+		   math/generic/Matrix.cpp
 endif

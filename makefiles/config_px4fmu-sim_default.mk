@@ -27,18 +27,18 @@ MODULES		+= modules/navigator
 MODULES		+= modules/systemlib
 MODULES		+= modules/systemlib/mixer
 #MODULES		+= modules/controllib
-MODULES		+= modules/uORB
 
 #
 # Libraries
 #
-LIBRARIES	+= lib/mathlib/CMSIS
 MODULES		+= lib/mathlib
 MODULES		+= lib/mathlib/math/filter
 MODULES		+= lib/ecl
 MODULES		+= lib/external_lgpl
 MODULES		+= lib/geo
 MODULES		+= lib/conversion
+
+MODULES		+= modules/uORB
 
 #
 # Demo apps
@@ -77,5 +77,4 @@ endef
 
 #                  command                 priority                   stack  entrypoint
 BUILTIN_COMMANDS := \
-	$(call _B, sercon,                 ,                          2048,  sercon_main                ) \
-	$(call _B, serdis,                 ,                          2048,  serdis_main                )
+	$(call _B, hello,                 ,                          2048,  hello_main                )
