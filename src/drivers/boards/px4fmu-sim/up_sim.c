@@ -75,24 +75,24 @@ extern void cpuload_initialize_once(void);
  * Public functions
  ****************************************************************************/
 
-void up_systemreset(void);
+//void up_systemreset(void);
 
 /* irq */
-void up_disable_irq(void);
-void up_enable_irq(void);
+// void up_disable_irq(int irq);
+// void up_enable_irq(void);
 
-/* spi */
-void up_spiinitialize(void);
+// /* spi */
+// void up_spiinitialize(void);
 
-/* ppm */
-void ppm_input_init(unsigned count_max);
-void ppm_input_decode(unsigned reset, unsigned count);
-int nsh_archinitialize(void);
+// /* ppm */
+// void ppm_input_init(unsigned count_max);
+// void ppm_input_decode(unsigned reset, unsigned count);
+// int nsh_archinitialize(void);
 
-/* power management */
-void pm_initialize(void);
-enum pm_state_e pm_checkstate(void);
-int pm_changestate(enum pm_state_e newstate);
+// /* power management */
+// void pm_initialize(void);
+// enum pm_state_e pm_checkstate(void);
+// int pm_changestate(enum pm_state_e newstate);
 
 /****************************************************************************
  * Private functions
@@ -169,12 +169,12 @@ int up_i2creset(FAR struct i2c_dev_s * dev)
 
 
 void
-up_disable_irq(void)
+up_disable_irq(int irq)
 {
 }
 
 void
-up_enable_irq(void)
+up_enable_irq(int irq)
 {
 }
 
@@ -199,26 +199,29 @@ nsh_archinitialize(void)
     vdbg("initializing sim arch\n");
     up_ttyS1(5501);
     atexit(uninit_arch);
-    return 0;
-}
 
-void
-pm_initialize(void)
-{
     cpuload_initialize_once();
-}
 
-enum pm_state_e
-pm_checkstate(void)
-{
     return 0;
 }
 
-int
-pm_changestate(enum pm_state_e newstate)
-{
-    return 0;
-}
+// void
+// pm_initialize(void)
+// {
+    
+// }
+
+// enum pm_state_e
+// pm_checkstate(void)
+// {
+//     return 0;
+// }
+
+// int
+// pm_changestate(enum pm_state_e newstate)
+// {
+//     return 0;
+// }
 
 void
 uninit_arch(void)

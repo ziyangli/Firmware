@@ -11,6 +11,7 @@ ROMFS_ROOT	 = $(PX4_BASE)/ROMFS/px4fmu_test
 # Board support modules
 #
 MODULES		+= drivers/device
+MODULES		+= drivers/device/bus
 MODULES		+= drivers/stm32
 MODULES		+= drivers/led
 MODULES		+= drivers/boards/px4fmu-v2

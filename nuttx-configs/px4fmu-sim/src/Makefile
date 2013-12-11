@@ -41,7 +41,6 @@ ASRCS =
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 
 CSRCS = 
-CSRCS += up_sim.c
 ifeq ($(CONFIG_SIM_X11FB),y)
 ifeq ($(CONFIG_SIM_TOUCHSCREEN),y)
   CSRCS += up_touchscreen.c

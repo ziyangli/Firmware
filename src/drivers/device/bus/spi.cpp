@@ -47,7 +47,7 @@
 
 #include <nuttx/arch.h>
 
-#include "spi.h"
+#include "../spi.h"
 
 #ifndef CONFIG_SPI_EXCHANGE
 # error This driver requires CONFIG_SPI_EXCHANGE

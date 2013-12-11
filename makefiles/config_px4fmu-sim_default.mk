@@ -13,20 +13,16 @@ ROMFS_OPTIONAL_FILES =
 #
 # Board support modules
 #
+MODULES		+= modules/uORB
 MODULES		+= drivers/sim/tone_alarm
 MODULES		+= drivers/sim
+MODULES		+= drivers/device
+MODULES		+= drivers/boards/px4fmu-sim
 
 #
 # General system control
 #
 MODULES		+= modules/navigator
-
-#
-# Library modules
-#
-MODULES		+= modules/systemlib
-MODULES		+= modules/systemlib/mixer
-#MODULES		+= modules/controllib
 
 #
 # Libraries
@@ -38,7 +34,12 @@ MODULES		+= lib/external_lgpl
 MODULES		+= lib/geo
 MODULES		+= lib/conversion
 
-MODULES		+= modules/uORB
+#
+# Library modules
+#
+MODULES		+= modules/systemlib
+MODULES		+= modules/systemlib/mixer
+#MODULES		+= modules/controllib
 
 #
 # Demo apps

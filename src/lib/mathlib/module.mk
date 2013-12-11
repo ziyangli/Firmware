@@ -50,12 +50,12 @@ SRCS		 = math/test/test.cpp \
 #
 APP_MAKEFILE	:= $(lastword $(MAKEFILE_LIST))
 
-ifeq ($(CONFIG_ARCH_CORTEXM4)$(CONFIG_ARCH_FPU),yy)
-INCLUDE_DIRS	+= math/arm
-SRCS		+= math/arm/Vector.cpp \
-		   math/arm/Matrix.cpp
-else
+ifeq ($(CONFIG_ARCH),NATIVE)
 INCLUDE_DIRS	+= math/generic
 SRCS		+= math/generic/Vector.cpp \
 		   math/generic/Matrix.cpp
+else
+INCLUDE_DIRS	+= math/arm
+SRCS		+= math/arm/Vector.cpp \
+		   math/arm/Matrix.cpp
 endif
