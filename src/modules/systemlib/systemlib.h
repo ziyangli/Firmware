@@ -41,6 +41,7 @@
 #define SYSTEMLIB_H_
 #include <float.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 __BEGIN_DECLS
 
