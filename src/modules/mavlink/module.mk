@@ -41,6 +41,7 @@ SRCS		 += mavlink.c \
 			   mavlink_parameters.c \
 			   mavlink_receiver.cpp \
 			   orb_listener.c \
-			   waypoints.c
+			   waypoints.c \
+			   mavlink_logmanager.cpp
 
 INCLUDE_DIRS	 += $(MAVLINK_SRC)/include/mavlink

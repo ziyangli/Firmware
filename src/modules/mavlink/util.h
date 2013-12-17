@@ -39,6 +39,8 @@
 
 #pragma once
 
+#include "waypoints.h"
+
 /** MAVLink communications channel */
 extern uint8_t chan;
 

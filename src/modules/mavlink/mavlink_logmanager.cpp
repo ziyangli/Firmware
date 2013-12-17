@@ -38,6 +38,7 @@
  * @author Lorenz Meier <lm@inf.ethz.ch>
  */
 
+#include <nuttx/config.h>
 #include <systemlib/systemlib.h>
 #include <systemlib/err.h>
 
@@ -45,14 +46,12 @@ __BEGIN_DECLS
 
 #include "mavlink_bridge_header.h"
 #include "orb_topics.h"
-#include "util.h"
 #include "mavlink_logmanager.h"
 
 __END_DECLS
 
 MAVLinkLogManager::MAVLinkLogManager() :
-
-	_task_should_exit(false),
+current_index(0)
 {
 	
 }
@@ -62,16 +61,16 @@ MAVLinkLogManager::~MAVLinkLogManager()
 	
 }
 
-MAVLinkLogManager::count_logs()
+unsigned MAVLinkLogManager::count_logs()
 {
-
+	return 1;
 }
 
 bool MAVLinkLogManager::handle_message(const mavlink_message_t *msg)
 {
 	bool consumed = true;
 
-	switch (msg.msgid) {
+	switch (msg->msgid) {
 		case MAVLINK_MSG_ID_LOG_REQUEST_LIST:
 		{
 			mavlink_log_request_list_t list;
@@ -93,12 +92,16 @@ bool MAVLinkLogManager::handle_message(const mavlink_message_t *msg)
 						unsigned size;
 					} curr;
 
+					curr.index = 1000;
+					curr.timestamp = 10000;
+					curr.size = 0;
+
 					// Die-hard send full list
 					if (curr.index >= list.start && curr.index < list.end) {
 						mavlink_msg_log_entry_send(MAVLINK_COMM_0, curr.index,
 							log_count,
 							log_count - 1,
-							curr.time,
+							curr.timestamp,
 							curr.size);
 					}
 				}
@@ -116,7 +119,7 @@ bool MAVLinkLogManager::handle_message(const mavlink_message_t *msg)
 		case MAVLINK_MSG_ID_LOG_ERASE:
 		{
 			mavlink_log_erase_t erase;
-			mavlink_msg_log_erase_decode(msg, &list);
+			mavlink_msg_log_erase_decode(msg, &erase);
 		}
 		break;
 

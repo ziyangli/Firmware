@@ -132,7 +132,7 @@ static orb_advert_t telemetry_status_pub = -1;
 // variables for HIL reference position
 static int32_t lat0 = 0;
 static int32_t lon0 = 0;
-static double alt0 = 0;
+static float alt0 = 0;
 
 static void
 handle_message(mavlink_message_t *msg)
@@ -626,8 +626,6 @@ handle_message(mavlink_message_t *msg)
 				orb_publish(ORB_ID(airspeed), pub_hil_airspeed, &airspeed);
 			}
 
-			uint64_t timestamp = hrt_absolute_time();
-
 			// publish global position	
 			if (pub_hil_global_pos > 0) {
 				orb_publish(ORB_ID(vehicle_global_position), pub_hil_global_pos, &hil_global_pos);
@@ -649,7 +647,7 @@ handle_message(mavlink_message_t *msg)
 			if (pub_hil_local_pos > 0) {
 				float x;
 				float y;
-				bool landed = hil_state.alt/1000.0f < (alt0 + 0.1); // XXX improve?
+				bool landed = (hil_state.alt/1000.0f < (alt0 + 0.1f)); // XXX improve?
 				double lat = hil_state.lat*1e-7;
 				double lon = hil_state.lon*1e-7;
 				map_projection_project(lat, lon, &x, &y); 
@@ -832,7 +830,7 @@ receive_thread(void *arg)
 
 	while (!thread_should_exit) {
 		if (poll(fds, 1, timeout) > 0) {
-			if (nread < sizeof(buf)) {
+			if (nread < (ssize_t)sizeof(buf)) {
 				/* to avoid reading very small chunks wait for data before reading */
 				usleep(1000);
 			}
@@ -853,7 +851,7 @@ receive_thread(void *arg)
 					mavlink_pm_message_handler(MAVLINK_COMM_0, &msg);
 
 					/* handle packet with log manager support */
-					lm.handle_message(&msg);
+					(void)lm.handle_message(&msg);
 				}
 			}
 		}

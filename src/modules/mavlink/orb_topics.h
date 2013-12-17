@@ -1,7 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2008-2012 PX4 Development Team. All rights reserved.
- *   Author: @author Lorenz Meier <lm@inf.ethz.ch>
+ *   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,9 +35,12 @@
  * @file orb_topics.h
  * Common sets of topics subscribed to or published by the MAVLink driver,
  * and structures maintained by those subscriptions.
+ *
+ * @author Lorenz Meier <lm@inf.ethz.ch>
  */
 #pragma once
 
+#include <pthread.h>
 #include <uORB/uORB.h>
 #include <uORB/topics/sensor_combined.h>
 #include <uORB/topics/rc_channels.h>
@@ -66,8 +68,8 @@
 #include <uORB/topics/debug_key_value.h>
 #include <uORB/topics/airspeed.h>
 #include <uORB/topics/battery_status.h>
-#include <drivers/drv_rc_input.h>
 #include <uORB/topics/navigation_capabilities.h>
+#include <drivers/drv_rc_input.h>
 
 struct mavlink_subscriptions {
 	int sensor_sub;

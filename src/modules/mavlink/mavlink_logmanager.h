@@ -38,6 +38,8 @@
  * @author Lorenz Meier <lm@inf.ethz.ch>
  */
 
+#pragma once
+
 #include <systemlib/systemlib.h>
 #include <systemlib/err.h>
 
@@ -64,15 +66,22 @@ public:
 	~MAVLinkLogManager();
 
 	/**
-	 * Start the sensors task.
+	 * Handle a telemetry message
 	 *
-	 * @return		OK on success.
+	 * @return		true if message was handled / consumed
 	 */
-	int		start();
+	bool		handle_message(const mavlink_message_t *msg);
+
+protected:
+
+	/**
+	 * Count the number of logs in the log directory
+	 */
+	unsigned	count_logs();
 
 private:
 
-	bool abc;	///< comment
+	unsigned current_index;		///< Current index in the transmission list
 
 	/**
 	 * Update our local parameter cache.
