@@ -1,7 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
- *   Author: Lorenz Meier <lm@inf.ethz.ch>
+ *   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +32,7 @@
  ****************************************************************************/
 
 /**
- * @file mavlink_receiver.c
+ * @file mavlink_receiver.cpp
  * MAVLink protocol message receive and dispatch
  *
  * @author Lorenz Meier <lm@inf.ethz.ch>
@@ -83,6 +82,7 @@ __BEGIN_DECLS
 #include "mavlink_hil.h"
 #include "mavlink_parameters.h"
 #include "util.h"
+#include "mavlink_logmanager.h"
 
 extern bool gcs_link;
 
@@ -827,6 +827,9 @@ receive_thread(void *arg)
 
 	ssize_t nread = 0;
 
+	/* Respond to log download request */
+	MAVLinkLogManager lm;
+
 	while (!thread_should_exit) {
 		if (poll(fds, 1, timeout) > 0) {
 			if (nread < sizeof(buf)) {
@@ -848,6 +851,9 @@ receive_thread(void *arg)
 
 					/* handle packet with parameter component */
 					mavlink_pm_message_handler(MAVLINK_COMM_0, &msg);
+
+					/* handle packet with log manager support */
+					lm.handle_message(&msg);
 				}
 			}
 		}
