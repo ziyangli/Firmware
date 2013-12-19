@@ -106,6 +106,7 @@ static bool main_thread_should_exit = false;		/**< Deamon exit flag */
 static bool thread_running = false;			/**< Deamon status flag */
 static int deamon_task;						/**< Handle of deamon task / thread */
 static bool logwriter_should_exit = false;	/**< Logwriter thread exit flag */
+static bool logfolder_created = false;		/**< Logging folder existing? */
 static const int MAX_NO_LOGFOLDER = 999;	/**< Maximum number of log folders */
 static const int MAX_NO_LOGFILE = 999;		/**< Maximum number of log files */
 static const int LOG_BUFFER_SIZE_DEFAULT = 8192;
@@ -281,7 +282,7 @@ int sdlog2_main(int argc, char *argv[])
 int create_logfolder()
 {
 	/* make folder on sdcard */
-	uint16_t folder_number = 1; // start with folder sess001
+	unsigned folder_number = 1; // start with folder sess001
 	int mkdir_ret;
 
 	/* look for the next folder that does not exist */
@@ -317,8 +318,8 @@ int create_logfolder()
 
 int open_logfile()
 {
-	/* make folder on sdcard */
-	uint16_t file_number = 1; // start with file log001
+
+	unsigned file_number = 1; // start with file log001
 
 	/* string to hold the path to the log */
 	char path_buf[64] = "";
@@ -467,6 +468,29 @@ void sdlog2_start_log()
 	pthread_attr_setstacksize(&receiveloop_attr, 2048);
 
 	logwriter_should_exit = false;
+
+	if (!logfolder_created) {
+
+		/* make folder on sdcard */
+		if (create_logfolder()) {
+			errx(1, "unable to create logging folder, exiting.");
+		}
+
+		const char *converter_in = "/etc/logging/conv.zip";
+		char *converter_out = malloc(120);
+		sprintf(converter_out, "%s/conv.zip", folder_path);
+
+		if (file_copy(converter_in, converter_out)) {
+			errx(1, "unable to copy conversion scripts, exiting.");
+		}
+
+		free(converter_out);
+
+		/* only print logging path, important to find log file later */
+		warnx("logging to directory: %s", folder_path);
+
+		logfolder_created = true;
+	}
 
 	/* start log buffer emptying thread */
 	if (0 != pthread_create(&logwriter_pthread, &receiveloop_attr, logwriter_thread, &lb)) {
@@ -650,23 +674,6 @@ int sdlog2_thread_main(int argc, char *argv[])
 	if (!file_exist(mountpoint)) {
 		errx(1, "logging mount point %s not present, exiting.", mountpoint);
 	}
-
-	if (create_logfolder()) {
-		errx(1, "unable to create logging folder, exiting.");
-	}
-
-	const char *converter_in = "/etc/logging/conv.zip";
-	char *converter_out = malloc(120);
-	sprintf(converter_out, "%s/conv.zip", folder_path);
-
-	if (file_copy(converter_in, converter_out)) {
-		errx(1, "unable to copy conversion scripts, exiting.");
-	}
-
-	free(converter_out);
-
-	/* only print logging path, important to find log file later */
-	warnx("logging to directory: %s", folder_path);
 
 	/* initialize log buffer with specified size */
 	warnx("log buffer size: %i bytes.", log_buffer_size);
