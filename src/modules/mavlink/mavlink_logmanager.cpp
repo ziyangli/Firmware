@@ -39,6 +39,8 @@
  */
 
 #include <nuttx/config.h>
+#include <stdio.h>
+#include <sys/stat.h>
 #include <systemlib/systemlib.h>
 #include <systemlib/err.h>
 
@@ -49,6 +51,12 @@ __BEGIN_DECLS
 #include "mavlink_logmanager.h"
 
 __END_DECLS
+
+
+// XXX magic number
+#define MAX_NO_LOGFOLDER 999
+#define MAX_NO_LOGFILE 999
+#define mountpoint "/fs/microsd"
 
 MAVLinkLogManager::MAVLinkLogManager() :
 current_index(0)
@@ -61,9 +69,91 @@ MAVLinkLogManager::~MAVLinkLogManager()
 	
 }
 
+unsigned MAVLinkLogManager::log_foreach(unsigned int (MAVLinkLogManager::* func)(void *arg, const struct stat *st, const char* path), void *arg)
+{
+	unsigned count = 0;
+
+	/* make folder on sdcard */
+	unsigned folder_number = 1; // start with folder sess001
+	char folder_path[64];
+
+	/* look for the next folder that does not exist */
+	while (folder_number <= MAX_NO_LOGFOLDER) {
+		unsigned file_number = 1; // start with file log001
+
+		sprintf(folder_path, "%s/sess%03u", mountpoint, folder_number);
+
+		// Abort on the first file name miss.
+		// XXX We need to get a real listing here.
+		struct stat buffer;
+		if (stat(folder_path, &buffer) != 0)
+			break;
+
+		/* look for the next file that does not exist */
+		while (file_number <= MAX_NO_LOGFILE) {
+
+			/* set up folder path: e.g. /fs/microsd/sess001 */
+			sprintf(folder_path, "%s/sess%03u/log%03u.bin", mountpoint, folder_number, file_number);
+
+			// XXX we need to use a real listing here
+
+			if (stat(folder_path, &buffer) == 0)
+			{
+				count++;
+
+				// Apparently the file exists run the function on it
+				if (func)
+					(this->*func)(arg, &buffer, folder_path);
+
+			} else {
+
+				// File names are linear, if we missed one there are no more files
+				break;
+			}
+
+			file_number++;
+		}
+
+		folder_number++;
+	}
+
+	if (folder_number >= MAX_NO_LOGFOLDER) {
+		/* we should not end up here, either we have more than MAX_NO_LOGFOLDER on the SD card, or another problem */
+		warnx("all %d possible folders exist already.", MAX_NO_LOGFOLDER);
+		return -1;
+	}
+
+	return count;
+}
+
 unsigned MAVLinkLogManager::count_logs()
 {
-	return 1;
+	return log_foreach(NULL, NULL);
+}
+
+unsigned MAVLinkLogManager::send_logentry(void *loginfo, const struct stat *buffer, const char* path)
+{
+
+	MAVLinkLogManager::log_info *info = (MAVLinkLogManager::log_info *)loginfo;
+
+	mavlink_msg_log_entry_send(MAVLINK_COMM_0, info->index,
+							info->log_count,
+							info->log_count - 1,
+							info->timestamp,
+							info->size);
+
+	return 0;
+}
+
+unsigned MAVLinkLogManager::send_list(MAVLinkLogManager::log_info *info)
+{
+		mavlink_msg_log_entry_send(MAVLINK_COMM_0, info->index,
+							info->log_count,
+							info->log_count - 1,
+							info->timestamp,
+							info->size);
+	
+	return log_foreach(&MAVLinkLogManager::send_logentry, info);
 }
 
 bool MAVLinkLogManager::handle_message(const mavlink_message_t *msg)
@@ -83,28 +173,14 @@ bool MAVLinkLogManager::handle_message(const mavlink_message_t *msg)
 				// Run through all folders on the microSD card
 				// and assign a linear index
 
-				unsigned log_count = count_logs();
+				MAVLinkLogManager::log_info info;
+				info.log_count = count_logs();
+				info.log_min = list.start;
+				info.log_max = list.end;
 
-				for (unsigned i = 0; i < log_count; i++) {
-					struct {
-						unsigned index;
-						unsigned timestamp;
-						unsigned size;
-					} curr;
+				int ret = send_list(&info);
 
-					curr.index = 1000;
-					curr.timestamp = 10000;
-					curr.size = 0;
-
-					// Die-hard send full list
-					if (curr.index >= list.start && curr.index < list.end) {
-						mavlink_msg_log_entry_send(MAVLINK_COMM_0, curr.index,
-							log_count,
-							log_count - 1,
-							curr.timestamp,
-							curr.size);
-					}
-				}
+				warnx("sent %d log entries", ret);
 			}
 		}
 		break;

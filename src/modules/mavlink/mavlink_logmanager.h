@@ -72,12 +72,25 @@ public:
 	 */
 	bool		handle_message(const mavlink_message_t *msg);
 
+	struct log_info {
+		unsigned index;
+		unsigned timestamp;
+		unsigned size;
+		unsigned log_count;
+		unsigned log_min;
+		unsigned log_max;
+	};
+
 protected:
 
 	/**
 	 * Count the number of logs in the log directory
 	 */
 	unsigned	count_logs();
+
+	unsigned	log_foreach(unsigned int (MAVLinkLogManager::*)(void *arg, const struct stat *st, const char* path), void *arg);
+	unsigned	send_logentry(void *info, const struct stat *buffer, const char* path);
+	unsigned	send_list(MAVLinkLogManager::log_info *info);
 
 private:
 
