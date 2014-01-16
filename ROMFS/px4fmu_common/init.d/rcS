@@ -2,13 +2,7 @@
 #
 # PX4FMU startup script.
 
-#
-# Default to auto-start mode.  An init script on the microSD card
-# can change this to prevent automatic startup of the flight script.
-#
-set MODE autostart
-
-set logfile /fs/microsd/bootlog.txt
+set logfile /fs/microsd/framlog.txt
 
 #
 # Try to mount the microSD card.
@@ -26,436 +20,42 @@ else
 fi
 
 #
-# Look for an init script on the microSD card.
+# Start system state indicator
 #
-# To prevent automatic startup in the current flight mode,
-# the script should set MODE to some other value.
-#
-if [ -f /fs/microsd/etc/rc ]
+if rgbled start
 then
-	echo "[init] reading /fs/microsd/etc/rc"
-	sh /fs/microsd/etc/rc
-fi
-# Also consider rc.txt files
-if [ -f /fs/microsd/etc/rc.txt ]
-then
-	echo "[init] reading /fs/microsd/etc/rc.txt"
-	sh /fs/microsd/etc/rc.txt
+	echo "Using external RGB Led"
+else
+	tone_alarm error
+	echo "[FAIL] RGB led failed to start" >> $logfile
 fi
 
-# if this is an APM build then there will be a rc.APM script
-# from an EXTERNAL_SCRIPTS build option
-if [ -f /etc/init.d/rc.APM ]
-then
-	if sercon
-	then
-		echo "[init] USB interface connected"
-	fi
+# red, green, blue
+# set blue
+rgbled rgb 0 0 40
 
-	echo "Running rc.APM"
-	# if APM startup is successful then nsh will exit
-	sh /etc/init.d/rc.APM
+if mtd start
+then
+	echo "MTD started"
+else
+	tone_alarm error
+	# red, green, blue
+	# set red
+	rgbled rgb 100 0 0
+	echo "[FAIL] MTD driver failed to start" >> $logfile
 fi
 
-if [ $MODE == autostart ]
+if tests mtd
 then
-	#
-	# Start terminal
-	#
-	if sercon
-	then
-		echo "USB connected"
-	fi
-	
-	#
-	# Start the ORB (first app to start)
-	#
-	uorb start
-	
-	#
-	# Load microSD params
-	#
-	if mtd start
-	then
-		param select /fs/mtd_params
-		if param load /fs/mtd_params
-		then
-		else
-			echo "FAILED LOADING PARAMS"
-		fi
-	else
-		param select /fs/microsd/params
-		if [ -f /fs/microsd/params ]
-		then
-			if param load /fs/microsd/params
-			then
-				echo "Parameters loaded"
-			else
-				echo "Parameter file corrupt - ignoring"
-			fi
-		fi
-	fi
-	
-	#
-	# Start system state indicator
-	#
-	if rgbled start
-	then
-		echo "Using external RGB Led"
-	else
-		if blinkm start
-		then
-			blinkm systemstate
-		fi
-	fi
-	
-	#
-	# Start the Commander (needs to be this early for in-air-restarts)
-	#
-	commander start
-
-	if param compare SYS_AUTOSTART 1000
-	then
-		sh /etc/init.d/1000_rc_fw_easystar.hil		
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 1001
-	then
-		sh /etc/init.d/1001_rc_quad.hil
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 1002
-	then
-		sh /etc/init.d/1002_rc_fw_state.hil
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 1003
-	then
-		sh /etc/init.d/1003_rc_quad_+.hil
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 1004
-	then
-		sh /etc/init.d/1004_rc_fw_Rascal110.hil
-		set MODE custom
-	fi
-	
-	if [ $MODE != custom ]
-	then
-		# Try to get an USB console
-		nshterm /dev/ttyACM0 &
-	fi
-
-	#
-	# Upgrade PX4IO firmware
-	#
-
-	if [ -f /etc/extras/px4io-v2_default.bin ]
-	then
-		set io_file /etc/extras/px4io-v2_default.bin
-	else
-		set io_file /etc/extras/px4io-v1_default.bin
-	fi
-
-	if px4io start
-	then
-		echo "PX4IO OK"
-		echo "PX4IO OK" >> $logfile
-	fi
-	
-	if px4io checkcrc $io_file
-	then
-		echo "PX4IO CRC OK"
-		echo "PX4IO CRC OK" >> $logfile
-	else
-		echo "PX4IO CRC failure"
-		echo "PX4IO CRC failure" >> $logfile
-		tone_alarm MBABGP
-		if px4io forceupdate 14662 $io_file
-		then
-			usleep 500000
-			if px4io start
-			then
-				echo "PX4IO restart OK"
-				echo "PX4IO restart OK" >> $logfile
-				tone_alarm MSPAA
-			else
-				echo "PX4IO restart failed"
-				echo "PX4IO restart failed" >> $logfile
-				tone_alarm MNGGG
-				sleep 10
-				reboot
-			fi
-		else
-			echo "PX4IO update failed"
-			echo "PX4IO update failed" >> $logfile
-			tone_alarm MNGGG
-		fi
-	fi
-
-	set EXIT_ON_END no
-	
-	#
-	# Check if auto-setup from one of the standard scripts is wanted
-	# SYS_AUTOSTART = 0 means no autostart (default)
-	#
-	# AUTOSTART PARTITION:
-	#  0   	..	 999		Reserved (historical)
-	#  1000	..	 1999		Simulation setups
-	#  2000	..	 2999		Standard planes
-	#  3000	..	 3999		Flying wing
-	#  4000	..	 4999		Quad X
-	#  5000	..	 5999		Quad +
-	#  6000	..	 6999		Hexa X
-	#  7000	..	 7999		Hexa +
-	#  8000	..	 8999		Octo X
-	#  9000	..	 9999		Octo +
-	# 10000	..	10999		Wide arm / H frame
-	# 11000	..	11999		Hexa Cox
-	# 12000	..	12999		Octo Cox
-	
-	if param compare SYS_AUTOSTART 4008 8
-	then
-		sh /etc/init.d/4008_ardrone
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 4009 9
-	then
-		sh /etc/init.d/4009_ardrone_flow
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 4010 10
-	then
-		set FRAME_GEOMETRY x
-		set FRAME_COUNT 4
-		set PWM_MIN 1200
-		set PWM_MAX 1900
-		set PWM_DISARMED 900
-		sh /etc/init.d/4010_dji_f330
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 4011 11
-	then
-		sh /etc/init.d/4011_dji_f450
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 4012
-	then
-		sh /etc/init.d/666_fmu_q_x550
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 6012 12
-	then
-		set MIXER /etc/mixers/FMU_hex_x.mix
-		sh /etc/init.d/rc.hexa
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 7013 13
-	then
-		set MIXER /etc/mixers/FMU_hex_+.mix
-		sh /etc/init.d/rc.hexa
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 8001
-	then
-		set MIXER /etc/mixers/FMU_octo_x.mix
-		sh /etc/init.d/rc.octo
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 9001
-	then
-		set MIXER /etc/mixers/FMU_octo_+.mix
-		sh /etc/init.d/rc.octo
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 12001
-	then
-		set MIXER /etc/mixers/FMU_octo_cox.mix
-		sh /etc/init.d/rc.octo
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 10015 15
-	then
-		sh /etc/init.d/10015_tbs_discovery
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 10016 16
-	then
-		sh /etc/init.d/10016_3dr_iris
-		set MODE custom
-	fi
-
-	# PX4FMU v1, v2 with or without IO and Mikrokopter I2C ESCs on DJI F330 X Frame
-	if param compare SYS_AUTOSTART 4017 17
-	then
-		set MKBLCTRL_MODE no
-		set MKBLCTRL_FRAME x
-		sh /etc/init.d/rc.custom_dji_f330_mkblctrl
-		set MODE custom
-	fi
-
-	# PX4FMU v1, v2 with or without IO and Mikrokopter I2C ESCs on DJI F330 + Frame
-	if param compare SYS_AUTOSTART 5018 18
-	then
-		set MKBLCTRL_MODE no
-		set MKBLCTRL_FRAME +
-		sh /etc/init.d/rc.custom_dji_f330_mkblctrl
-		set MODE custom
-	fi
-
-	# PX4FMU v1, v2 with or without IO and Mikrokopter I2C ESCs on DJI F330 X Frame Mikrokopter-Addressing
-	if param compare SYS_AUTOSTART 4019 19
-	then
-		set MKBLCTRL_MODE yes
-		set MKBLCTRL_FRAME x
-		sh /etc/init.d/rc.custom_dji_f330_mkblctrl
-		set MODE custom
-	fi
-
-	# PX4FMU v1, v2 with or without IO and Mikrokopter I2C ESCs on DJI F330 + Frame Mikrokopter-Addressing
-	if param compare SYS_AUTOSTART 5020 20
-	then
-		set MKBLCTRL_MODE yes
-		set MKBLCTRL_FRAME +
-		sh /etc/init.d/rc.custom_dji_f330_mkblctrl
-		set MODE custom
-	fi
-
-	# PX4FMU v1 with IO + PPM-based ESCs on Quad X-shape frame
-	if param compare SYS_AUTOSTART 4021 21
-	then
-		set FRAME_GEOMETRY x
-		set ESC_MAKER afro
-		sh /etc/init.d/rc.custom_io_esc
-		set MODE custom
-	fi
-
-	# PX4FMU v1 with IO + PPM-based ESCs on Quad X-shape frame
-	if param compare SYS_AUTOSTART 10022 22
-	then
-		set FRAME_GEOMETRY w
-		sh /etc/init.d/rc.custom_io_esc
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 3030 30
-	then
-		sh /etc/init.d/3030_io_camflyer
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 3031 31
-	then
-		sh /etc/init.d/3031_io_phantom
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 3032 32
-	then
-		sh /etc/init.d/3032_skywalker_x5
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 3033 33
-	then
-		sh /etc/init.d/3033_io_wingwing
-		set MODE custom
-	fi
-
-        if param compare SYS_AUTOSTART 3034 34
-        then
-                sh /etc/init.d/3034_io_fx79
-                set MODE custom
-        fi
-
-	if param compare SYS_AUTOSTART 40
-	then
-		sh /etc/init.d/40_io_segway
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 2100 100
-	then
-		sh /etc/init.d/2100_mpx_easystar
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 2101 101
-	then
-		sh /etc/init.d/2101_hk_bixler
-		set MODE custom
-	fi
-
-	if param compare SYS_AUTOSTART 2102 102
-	then
-		sh /etc/init.d/2102_3dr_skywalker
-		set MODE custom
-	fi
-	
-	if param compare SYS_AUTOSTART 800
-	then
-		sh /etc/init.d/800_sdlogger
-		set MODE custom
-	fi
-	
-	# Start any custom extensions that might be missing
-	if [ -f /fs/microsd/etc/rc.local ]
-	then
-		sh /fs/microsd/etc/rc.local
-	fi
-	
-	# If none of the autostart scripts triggered, get a minimal setup
-	if [ $MODE == autostart ]
-	then
-		# Telemetry port is on both FMU boards ttyS1
-		# but the AR.Drone motors can be get 'flashed'
-		# if starting MAVLink on them - so do not
-		# start it as default (default link: USB)
-	
-		# Start commander
-		commander start
-	
-		# Start px4io if present
-		if px4io detect
-		then
-			px4io start
-		else
-			if fmu mode_serial
-			then
-				echo "FMU driver (no PWM) started"
-			fi
-		fi
-	
-		# Start sensors
-		sh /etc/init.d/rc.sensors
-	
-		# Start one of the estimators
-		attitude_estimator_ekf start
-	
-		# Start GPS
-		gps start
-	
-	fi
-
-	if [ $EXIT_ON_END == yes ]
-	then
-		exit
-	fi
-
-# End of autostart
+	echo "MTD TEST SUCCEEDED"
+	# red, green, blue
+	# set green
+	rgbled rgb 0 50 0
+	echo "[OK] MTD write test succeeded" >> $logfile
+else
+	# red, green, blue
+	# set red
+	rgbled rgb 50 0 0
+	echo "[FAIL] MTD write test failed" >> $logfile
 fi
+
