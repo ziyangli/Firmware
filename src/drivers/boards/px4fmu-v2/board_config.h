@@ -71,6 +71,10 @@ __BEGIN_DECLS
 #define PX4IO_SERIAL_CLOCK	STM32_PCLK2_FREQUENCY
 #define PX4IO_SERIAL_BITRATE	1500000			/* 1.5Mbps -> max rate for IO */
 
+#define GPIO_WIFI_EN  (GPIO_PORTC | GPIO_PIN1  | GPIO_OUTPUT_CLEAR | GPIO_OUTPUT | GPIO_PUSHPULL | GPIO_SPEED_50MHz)
+#define GPIO_WIFI_CS  (GPIO_PORTE | GPIO_PIN4 | GPIO_OUTPUT_SET   | GPIO_OUTPUT | GPIO_PUSHPULL | GPIO_SPEED_50MHz)
+
+#define GPIO_WIFI_INT (GPIO_PORTC | GPIO_PIN14 | GPIO_INPUT        | GPIO_PULLUP | GPIO_EXTI)
 
 /* PX4FMU GPIOs ***********************************************************************************/
 /* LEDs */
