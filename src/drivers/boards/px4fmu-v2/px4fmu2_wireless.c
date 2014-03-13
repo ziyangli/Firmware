@@ -54,6 +54,20 @@
 #include "stm32.h"
 #include "board_config.h"
 
+#ifdef CONFIG_CPP_HAVE_VARARGS
+#  ifdef CONFIG_DEBUG
+#    define message(...) lowsyslog(__VA_ARGS__)
+#  else
+#    define message(...) printf(__VA_ARGS__)
+#  endif
+#else
+#  ifdef CONFIG_DEBUG
+#    define message lowsyslog
+#  else
+#    define message printf
+#  endif
+#endif
+
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
@@ -64,8 +78,8 @@
 #  error "Wireless support requires CONFIG_WIRELESS"
 #endif
 
-#ifndef CONFIG_STM32_SPI2
-#  error "CC3000 Wireless support requires CONFIG_STM32_SPI2"
+#ifndef CONFIG_STM32_SPI4
+#  error "CC3000 Wireless support requires CONFIG_STM32_SPI4"
 #endif
 
 #ifndef CC3000_SPI_FREQUENCY
@@ -73,11 +87,11 @@
 #endif
 
 #ifndef CC3000_SPIDEV
-#  define CC3000_SPIDEV 2
+#  define CC3000_SPIDEV 4
 #endif
 
-#if CC3000_SPIDEV != 2
-#  error "CC3000_SPIDEV must be 2"
+#if CC3000_SPIDEV != 4
+#  error "CC3000_SPIDEV must be 4"
 #endif
 
 #ifndef CC3000_DEVMINOR
@@ -277,33 +291,40 @@ __EXPORT int wireless_archinitialize(void)
 
   /* Init SPI bus */
 
-  idbg("minor %d\n", minor);
-  DEBUGASSERT(CONFIG_CC3000_DEVMINOR == 0);
+  message("minor %d\n", CONFIG_CC3000_DEVMINOR);
+  //DEBUGASSERT(CONFIG_CC3000_DEVMINOR == 0);
 
-#ifdef CONFIG_CC3000_PROBES
-  stm32_configgpio(GPIO_D0);
-  stm32_configgpio(GPIO_D1);
-  stm32_gpiowrite(GPIO_D0, 1);
-  stm32_gpiowrite(GPIO_D1, 1);
-#endif
+// #ifdef CONFIG_CC3000_PROBES
+//   stm32_configgpio(GPIO_D0);
+//   stm32_configgpio(GPIO_D1);
+//   stm32_gpiowrite(GPIO_D0, 1);
+//   stm32_gpiowrite(GPIO_D1, 1);
+// #endif
 
   /* Get an instance of the SPI interface */
 
   spi = up_spiinitialize(CONFIG_CC3000_SPIDEV);
   if (!spi)
     {
-      idbg("Failed to initialize SPI bus %d\n", CONFIG_CC3000_SPIDEV);
+      message("Failed to initialize SPI bus %d\n", CONFIG_CC3000_SPIDEV);
       return -ENODEV;
+    }else{
+      message("INIT BUS: %d\n", CONFIG_CC3000_SPIDEV);
     }
+
+  stm32_gpiowrite(GPIO_WIFI_CS, 1);
 
   /* Initialize and register the SPI CC3000 device */
 
   int ret = cc3000_register(spi, &g_cc3000_info.dev, CONFIG_CC3000_DEVMINOR);
   if (ret < 0)
     {
-      idbg("Failed to initialize SPI bus %d\n", CONFIG_CC3000_SPIDEV);
+      message("Failed to register cc3000 %d\n", CONFIG_CC3000_SPIDEV);
       return -ENODEV;
     }
+
+  message("INIT DONE!\n");
+  usleep(2000);
 
   return OK;
 }
@@ -351,6 +372,7 @@ __EXPORT void cc3000_wlan_init(tWlanCB sWlanCB, tFWPatches sFWPatches, tDriverPa
                       sDriverPatches,  tBootLoaderPatches sBootLoaderPatches)
 {
   wlan_init(sWlanCB, sFWPatches, sDriverPatches, sBootLoaderPatches);
+  message("WLAN INIT DONE\n");
 }
 
 #endif /* CONFIG_WL_CC3000 */

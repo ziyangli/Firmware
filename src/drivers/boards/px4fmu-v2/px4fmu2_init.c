@@ -285,18 +285,20 @@ __EXPORT int nsh_archinitialize(void)
 
 	message("[boot] Initialized SPI port 1 (SENSORS)\n");
 
-	spi4 = up_spiinitialize(4);
+	// spi4 = up_spiinitialize(4);
 
-	if (!spi4) {
-		message("[boot] FAILED to initialize SPI port 1\n");
-		up_ledon(LED_AMBER);
-		return -ENODEV;
-	}
+	// if (!spi4) {
+	// 	message("[boot] FAILED to initialize SPI port 4\n");
+	// 	up_ledon(LED_AMBER);
+	// 	return -ENODEV;
+	// }
 
-	/* Default SPI1 to 1MHz and de-assert the known chip selects. */
-	SPI_SETFREQUENCY(spi4, 10000000);
-	SPI_SETBITS(spi4, 8);
-	SPI_SETMODE(spi4, SPIDEV_MODE0);
+	// message("[boot] Initialized SPI port 4 (EXTERNAL)\n");
+
+	// /* Default SPI1 to 1MHz and de-assert the known chip selects. */
+	// SPI_SETFREQUENCY(spi4, 10000000);
+	// SPI_SETBITS(spi4, 8);
+	// SPI_SETMODE(spi4, SPIDEV_MODE0);
 
 	/* Get the SPI port for the FRAM */
 
