@@ -160,4 +160,5 @@ endef
 
 #                  command                 priority                   stack  entrypoint
 BUILTIN_COMMANDS := \
-	$(call _B, sysinfo,                 ,                          2048,  sysinfo_main                )
+	$(call _B, sysinfo,                 ,                          2048,  sysinfo_main                ) \
+	$(call _B, c3b,                 ,                          2048,  c3b_main                )

@@ -192,6 +192,7 @@ stm32_boardinitialize(void)
 
 static struct spi_dev_s *spi1;
 static struct spi_dev_s *spi2;
+static struct spi_dev_s *spi4;
 static struct sdio_dev_s *sdio;
 
 #include <math.h>
@@ -283,6 +284,19 @@ __EXPORT int nsh_archinitialize(void)
 	up_udelay(20);
 
 	message("[boot] Initialized SPI port 1 (SENSORS)\n");
+
+	spi4 = up_spiinitialize(4);
+
+	if (!spi4) {
+		message("[boot] FAILED to initialize SPI port 1\n");
+		up_ledon(LED_AMBER);
+		return -ENODEV;
+	}
+
+	/* Default SPI1 to 1MHz and de-assert the known chip selects. */
+	SPI_SETFREQUENCY(spi4, 10000000);
+	SPI_SETBITS(spi4, 8);
+	SPI_SETMODE(spi4, SPIDEV_MODE0);
 
 	/* Get the SPI port for the FRAM */
 
