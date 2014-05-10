@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2012-2014 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2013, 2014 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +33,7 @@
 
 /**
  * @file otp.h
- * One TIme Programmable ( OTP ) Flash routine/s.
+ * One Time Programmable ( OTP ) Flash routine/s.
  *
  * @author Lorenz Meier <lm@inf.ethz.ch>
  * @author David "Buzz" Bussenschutt <davidbuzz@gmail.com>
@@ -133,8 +133,6 @@ union udid {
 /**
  *   s
  */
-//__EXPORT float calc_indicated_airspeed(float differential_pressure);
-
 __EXPORT void F_unlock(void);
 __EXPORT void F_lock(void);
 __EXPORT int val_read(void *dest, volatile const void *src, int bytes);

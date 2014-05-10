@@ -1,9 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (C) 2012-2013 PX4 Development Team. All rights reserved.
- *   Authors:
- *      Lorenz Meier <lm@inf.ethz.ch>
- *      David "Buzz" Bussenschutt <davidbuzz@gmail.com>
+ *   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -54,6 +51,7 @@
 #include "err.h"   // warnx 
 #include <assert.h>
 
+static int F_GetStatus(void);
 
 int val_read(void *dest, volatile const void *src, int bytes)
 {
@@ -187,7 +185,7 @@ int F_write_word(uint32_t Address, uint32_t Data)
 // flash write byte
 int F_write_byte(uint32_t Address, uint8_t Data)
 {
-	volatile int status = F_COMPLETE;
+	volatile int status;
 
 	//warnx("F_write_byte: %08X %02d", Address , Data ) ;
 
