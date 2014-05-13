@@ -129,6 +129,7 @@ private:
 	volatile bool	_task_should_exit;
 	bool		_servo_armed;
 	bool		_pwm_on;
+	bool		_ppm_input_on;
 
 	MixerGroup	*_mixers;
 
@@ -174,6 +175,7 @@ private:
 	void		gpio_write(uint32_t gpios, int function);
 	uint32_t	gpio_read(void);
 	int		gpio_ioctl(file *filp, int cmd, unsigned long arg);
+	void		enable_ppm_input(bool on) { _ppm_input_on = on; }
 
 };
 
@@ -210,7 +212,7 @@ const unsigned PX4FMU::_ngpio = sizeof(PX4FMU::_gpio_tab) / sizeof(PX4FMU::_gpio
 namespace
 {
 
-PX4FMU	*g_fmu;
+PX4FMU	*g_fmu = nullptr;
 
 } // namespace
 
@@ -231,6 +233,7 @@ PX4FMU::PX4FMU() :
 	_task_should_exit(false),
 	_servo_armed(false),
 	_pwm_on(false),
+	_ppm_input_on(false),
 	_mixers(nullptr),
 	_groups_required(0),
 	_groups_subscribed(0),
@@ -671,7 +674,7 @@ PX4FMU::task_main()
 #ifdef HRT_PPM_CHANNEL
 
 		// see if we have new PPM input data
-		if (ppm_last_valid_decode != rc_in.timestamp_last_signal) {
+		if (_ppm_input_on && (ppm_last_valid_decode != rc_in.timestamp_last_signal)) {
 			// we have a new PPM frame. Publish it.
 			rc_in.channel_count = ppm_decoded_channels;
 
@@ -1738,6 +1741,17 @@ fmu_main(int argc, char *argv[])
 
 	} else if (!strcmp(verb, "mode_pwm_gpio")) {
 		new_mode = PORT_PWM_AND_GPIO;
+	} else if (!strcmp(verb, "ppm")) {
+
+		if (argc > 2) {
+
+			bool on = !strcmp(argv[2], "on");
+			g_fmu->enable_ppm_input(true);
+
+		} else {
+			errx(1, "need a command (on, off)");
+		}
+	}
 #endif
 	}
 
