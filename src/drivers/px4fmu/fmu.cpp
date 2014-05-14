@@ -234,7 +234,7 @@ PX4FMU::PX4FMU() :
 	_task_should_exit(false),
 	_servo_armed(false),
 	_pwm_on(false),
-	_ppm_input_on(false),
+	_ppm_input_on(true),
 	_mixers(nullptr),
 	_groups_required(0),
 	_groups_subscribed(0),
