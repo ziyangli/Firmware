@@ -105,8 +105,10 @@ public:
 
 	int		set_pwm_alt_rate(unsigned rate);
 	int		set_pwm_alt_channels(uint32_t channels);
+	void		enable_ppm_input(bool on) { _ppm_input_on = on; }
 
 private:
+
 #if defined(CONFIG_ARCH_BOARD_PX4FMU_V1)
 	static const unsigned _max_actuators = 4;
 #endif
@@ -175,7 +177,6 @@ private:
 	void		gpio_write(uint32_t gpios, int function);
 	uint32_t	gpio_read(void);
 	int		gpio_ioctl(file *filp, int cmd, unsigned long arg);
-	void		enable_ppm_input(bool on) { _ppm_input_on = on; }
 
 };
 
@@ -1751,7 +1752,6 @@ fmu_main(int argc, char *argv[])
 		} else {
 			errx(1, "need a command (on, off)");
 		}
-	}
 #endif
 	}
 
