@@ -269,3 +269,33 @@ PARAM_DEFINE_FLOAT(PE_MAGB_PNOISE, 0.0003f);
  * @group Position Estimator
  */
 PARAM_DEFINE_FLOAT(PE_POSDEV_INIT, 5.0f);
+
+/**
+ * GPS glitch protection maximum acceleration.
+ *
+ * This parameter (in m/s^2) sets the maximum difference the predicted acceleration
+ * and the calculated acceleration of a GPS update can have to consider a GPS
+ * measurement valid. This prevents the filter from following GPS glitches instantly.
+ * If this value is too low, due to noise valid GPS measurements will be rejected.
+ * If this value is too high, GPS glitches (outliers) will enter the estimation framework
+ * and lead to strong filter reactions.
+ *
+ * @min 1.0
+ * @max 5.0
+ * @group Position Estimator
+ */
+PARAM_DEFINE_FLOAT(PE_GLITCH_ACC, 1.50f);
+
+/**
+ * GPS glitch protection maximum radius.
+ *
+ * This radius defines when continuous GPS updates are considered sufficiently different
+ * from the the current position to adjust the current position to the new GPS estimate.
+ * This allows the glitch protection to fight off short-term position glitches, but still
+ * lets the filter converge if the GPS converges to a new position.
+ *
+ * @min 0.3
+ * @max 10.0
+ * @group Position Estimator
+ */
+PARAM_DEFINE_FLOAT(PE_GLITCH_RAD, 15.0f);
