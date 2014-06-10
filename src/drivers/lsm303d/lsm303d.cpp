@@ -198,10 +198,10 @@ static const int ERROR = -1;
 #define INT_SRC_M               0x13
 
 /* default values for this device */
-#define LSM303D_ACCEL_DEFAULT_RANGE_G			8
+#define LSM303D_ACCEL_DEFAULT_RANGE_G			16
 #define LSM303D_ACCEL_DEFAULT_RATE			800
-#define LSM303D_ACCEL_DEFAULT_ONCHIP_FILTER_FREQ	50
-#define LSM303D_ACCEL_DEFAULT_DRIVER_FILTER_FREQ	30
+#define LSM303D_ACCEL_DEFAULT_ONCHIP_FILTER_FREQ	999
+#define LSM303D_ACCEL_DEFAULT_DRIVER_FILTER_FREQ	999
 
 #define LSM303D_MAG_DEFAULT_RANGE_GA			2
 #define LSM303D_MAG_DEFAULT_RATE			100
@@ -1820,7 +1820,7 @@ start()
 		errx(0, "already started");
 
 	/* create the driver */
-	g_dev = new LSM303D(PX4_SPI_BUS_SENSORS, LSM303D_DEVICE_PATH_ACCEL, (spi_dev_e)PX4_SPIDEV_ACCEL_MAG);
+	g_dev = new LSM303D(4, LSM303D_DEVICE_PATH_ACCEL, (spi_dev_e)PX4_SPIDEV_EXT0);
 
 	if (g_dev == nullptr) {
 		warnx("failed instantiating LSM303D obj");

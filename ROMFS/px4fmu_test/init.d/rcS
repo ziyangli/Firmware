@@ -75,3 +75,6 @@ if [ -f /fs/microsd/mount_test_cmds.txt ]
 then
 	tests mount
 fi
+
+#lsm303d start
+#matlab_csv_serial start /dev/ttyACM0

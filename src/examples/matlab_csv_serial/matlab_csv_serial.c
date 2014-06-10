@@ -104,7 +104,7 @@ int matlab_csv_serial_main(int argc, char *argv[])
 		daemon_task = task_spawn_cmd("matlab_csv_serial",
 					 SCHED_DEFAULT,
 					 SCHED_PRIORITY_MAX - 5,
-					 2000,
+					 4000,
 					 matlab_csv_serial_thread_main,
 					 (argv) ? (const char **)&argv[2] : (const char **)NULL);
 		exit(0);
@@ -142,9 +142,9 @@ int matlab_csv_serial_thread_main(int argc, char *argv[])
 
 	warnx("opening port %s", uart_name);
 
-	int serial_fd = open(uart_name, O_RDWR | O_NOCTTY);
+	int serial_fd = open(uart_name, O_WRONLY | O_NOCTTY);
 
-	unsigned speed = 921600;
+	unsigned speed = B460800;
 
 	if (serial_fd < 0) {
 		err(1, "failed to open port: %s", uart_name);
@@ -230,8 +230,9 @@ int matlab_csv_serial_thread_main(int argc, char *argv[])
 				orb_copy(ORB_ID(sensor_gyro1), gyro1_sub, &gyro1);
 
 				// write out on accel 0, but collect for all other sensors as they have updates
-				dprintf(serial_fd, "%llu,%d,%d,%d,%d,%d,%d\n", accel0.timestamp, (int)accel0.x_raw, (int)accel0.y_raw, (int)accel0.z_raw,
-					(int)accel1.x_raw, (int)accel1.y_raw, (int)accel1.z_raw);
+				printf("%i,", (int)accel0.timestamp);
+				printf("%i,%i,%i", accel0.x_raw, accel0.y_raw, accel0.z_raw);
+				printf("%i,%i,%i\n", gyro0.x_raw, gyro0.y_raw, gyro0.z_raw);
 			}
 
 		}
