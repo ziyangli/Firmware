@@ -1820,7 +1820,7 @@ start()
 		errx(0, "already started");
 
 	/* create the driver */
-	g_dev = new LSM303D(4, LSM303D_DEVICE_PATH_ACCEL, (spi_dev_e)PX4_SPIDEV_EXT0);
+	g_dev = new LSM303D(4, LSM303D_DEVICE_PATH_ACCEL, (spi_dev_e)PX4_SPIDEV_EXT1);
 
 	if (g_dev == nullptr) {
 		warnx("failed instantiating LSM303D obj");

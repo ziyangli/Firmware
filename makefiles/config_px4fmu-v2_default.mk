@@ -148,6 +148,9 @@ MODULES		+= examples/px4_simple_app
 # Hardware test
 #MODULES			+= examples/hwtest
 
+# Matlab interface tutorial
+MODULES		+= examples/matlab_csv_serial
+
 #
 # Transitional support - add commands from the NuttX export archive.
 #
