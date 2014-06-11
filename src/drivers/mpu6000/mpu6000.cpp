@@ -1456,7 +1456,7 @@ start()
 		errx(0, "already started");
 
 	/* create the driver */
-	g_dev = new MPU6000(1 /* XXX magic number */, (spi_dev_e)PX4_SPIDEV_MPU);
+	g_dev = new MPU6000(4 /* XXX magic number */, (spi_dev_e)PX4_SPIDEV_EXT0);
 
 	if (g_dev == nullptr)
 		goto fail;
