@@ -32,7 +32,7 @@
  ****************************************************************************/
 
 /**
- * @file matlab_csv_serial_main.c
+ * @file matlab_csv_serial.c
  *
  * Matlab CSV / ASCII format interface at 921600 baud, 8 data bits,
  * 1 stop bit, no parity
@@ -231,8 +231,8 @@ int matlab_csv_serial_thread_main(int argc, char *argv[])
 
 				// write out on accel 0, but collect for all other sensors as they have updates
 				printf("%i,", (int)accel0.timestamp);
-				printf("%i,%i,%i", accel0.x_raw, accel0.y_raw, accel0.z_raw);
-				printf("%i,%i,%i\n", gyro0.x_raw, gyro0.y_raw, gyro0.z_raw);
+				printf("%i,%i,%i,", accel0.x_raw, accel0.y_raw, accel0.z_raw);
+				printf("%i,%i,%i\n", accel1.x_raw, accel1.y_raw, accel1.z_raw);
 			}
 
 		}
