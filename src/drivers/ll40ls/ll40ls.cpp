@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2013 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2014 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -499,7 +499,7 @@ LL40LS::measure()
 int
 LL40LS::collect()
 {
-	int	ret = -EIO;
+	int	ret;
 
 	/* read from the sensor */
 	uint8_t val[2] = {0, 0};
@@ -646,7 +646,7 @@ LL40LS::print_info()
 	perf_print_counter(_sample_perf);
 	perf_print_counter(_comms_errors);
 	perf_print_counter(_buffer_overflows);
-	printf("poll interval:  %u ticks\n", _measure_ticks);
+	printf("poll interval:  %d ticks\n", _measure_ticks);
 	_reports->print_info("report queue");
 }
 
