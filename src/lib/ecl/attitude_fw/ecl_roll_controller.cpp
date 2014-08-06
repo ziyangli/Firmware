@@ -45,77 +45,32 @@
 #include <geo/geo.h>
 #include <ecl/ecl.h>
 #include <mathlib/mathlib.h>
-#include <systemlib/err.h>
 
 ECL_RollController::ECL_RollController() :
 	_last_run(0),
 	_tc(0.1f),
-	_k_p(0.0f),
-	_k_i(0.0f),
-	_k_ff(0.0f),
-	_integrator_max(0.0f),
-	_max_rate(0.0f),
 	_last_output(0.0f),
 	_integrator(0.0f),
 	_rate_error(0.0f),
 	_rate_setpoint(0.0f),
-	_bodyrate_setpoint(0.0f),
-	_nonfinite_input_perf(perf_alloc(PC_COUNT, "fw att control roll nonfinite input"))
+	_max_deflection_rad(math::radians(45.0f))
 {
+
 }
 
-ECL_RollController::~ECL_RollController()
+float ECL_RollController::control(float roll_setpoint, float roll, float roll_rate,
+				  float scaler, bool lock_integrator, float airspeed_min, float airspeed_max, float airspeed)
 {
-	perf_free(_nonfinite_input_perf);
-}
-
-float ECL_RollController::control_attitude(float roll_setpoint, float roll)
-{
-	/* Do not calculate control signal with bad inputs */
-	if (!(isfinite(roll_setpoint) && isfinite(roll))) {
-		perf_count(_nonfinite_input_perf);
-		return _rate_setpoint;
-	}
-
-	/* Calculate error */
-	float roll_error = roll_setpoint - roll;
-
-	/* Apply P controller */
-	_rate_setpoint = roll_error / _tc;
-
-	/* limit the rate */ //XXX: move to body angluar rates
-	if (_max_rate > 0.01f) {
-		_rate_setpoint = (_rate_setpoint > _max_rate) ? _max_rate : _rate_setpoint;
-		_rate_setpoint = (_rate_setpoint < -_max_rate) ? -_max_rate : _rate_setpoint;
-	}
-
-	return _rate_setpoint;
-}
-
-float ECL_RollController::control_bodyrate(float pitch,
-		float roll_rate, float yaw_rate,
-		float yaw_rate_setpoint,
-		float airspeed_min, float airspeed_max, float airspeed, float scaler, bool lock_integrator)
-{
-	/* Do not calculate control signal with bad inputs */
-	if (!(isfinite(pitch) && isfinite(roll_rate) && isfinite(yaw_rate) && isfinite(yaw_rate_setpoint) &&
-			isfinite(airspeed_min) && isfinite(airspeed_max) &&
-			isfinite(scaler))) {
-		perf_count(_nonfinite_input_perf);
-		return math::constrain(_last_output, -1.0f, 1.0f);
-	}
-
 	/* get the usual dt estimate */
 	uint64_t dt_micros = ecl_elapsed_time(&_last_run);
 	_last_run = ecl_absolute_time();
-	float dt = (float)dt_micros * 1e-6f;
 
-	/* lock integral for long intervals */
-	if (dt_micros > 500000)
-		lock_integrator = true;
+	float dt = (dt_micros > 500000) ? 0.0f : dt_micros / 1000000;
+
+	float k_ff = math::max((_k_p - _k_i * _tc) * _tc - _k_d, 0.0f);
+	float k_i_rate = _k_i * _tc;
 
 	/* input conditioning */
-//	warnx("airspeed pre %.4f", (double)airspeed);
 	if (!isfinite(airspeed)) {
 		/* airspeed is NaN, +- INF or not available, pick center of band */
 		airspeed = 0.5f * (airspeed_min + airspeed_max);
@@ -123,27 +78,32 @@ float ECL_RollController::control_bodyrate(float pitch,
 		airspeed = airspeed_min;
 	}
 
+	float roll_error = roll_setpoint - roll;
+	_rate_setpoint = roll_error / _tc;
 
-	/* Transform setpoint to body angular rates */
-	_bodyrate_setpoint = _rate_setpoint - sinf(pitch) * yaw_rate_setpoint; //jacobian
+	/* limit the rate */
+	if (_max_rate > 0.01f) {
+		_rate_setpoint = (_rate_setpoint > _max_rate) ? _max_rate : _rate_setpoint;
+		_rate_setpoint = (_rate_setpoint < -_max_rate) ? -_max_rate : _rate_setpoint;
+	}
 
-	/* Transform estimation to body angular rates */
-	float roll_bodyrate = roll_rate - sinf(pitch) * yaw_rate; //jacobian
+	_rate_error = _rate_setpoint - roll_rate;
 
-	/* Calculate body angular rate error */
-	_rate_error = _bodyrate_setpoint - roll_bodyrate; //body angular rate error
 
-	if (!lock_integrator && _k_i > 0.0f && airspeed > 0.5f * airspeed_min) {
+	float ilimit_scaled = 0.0f;
 
-		float id = _rate_error * dt;
+	if (!lock_integrator && k_i_rate > 0.0f && airspeed > 0.5f * airspeed_min) {
+
+		float id = _rate_error * k_i_rate * dt * scaler;
 
 		/*
-		* anti-windup: do not allow integrator to increase if actuator is at limit
-		*/
-		if (_last_output < -1.0f) {
+		 * anti-windup: do not allow integrator to increase into the
+		 * wrong direction if actuator is at limit
+		 */
+		if (_last_output < -_max_deflection_rad) {
 			/* only allow motion to center: increase value */
 			id = math::max(id, 0.0f);
-		} else if (_last_output > 1.0f) {
+		} else if (_last_output > _max_deflection_rad) {
 			/* only allow motion to center: decrease value */
 			id = math::min(id, 0.0f);
 		}
@@ -152,14 +112,11 @@ float ECL_RollController::control_bodyrate(float pitch,
 	}
 
 	/* integrator limit */
-	//xxx: until start detection is available: integral part in control signal is limited here
-	float integrator_constrained = math::constrain(_integrator * _k_i, -_integrator_max, _integrator_max);
-	//warnx("roll: _integrator: %.4f, _integrator_max: %.4f", (double)_integrator, (double)_integrator_max);
+	_integrator = math::constrain(_integrator, -ilimit_scaled, ilimit_scaled);
+	/* store non-limited output */
+	_last_output = ((_rate_error * _k_d * scaler) + _integrator + (_rate_setpoint * k_ff)) * scaler;
 
-	/* Apply PI rate controller and store non-limited output */
-	_last_output = (_bodyrate_setpoint * _k_ff + _rate_error * _k_p + integrator_constrained) * scaler * scaler;  //scaler is proportional to 1/airspeed
-
-	return math::constrain(_last_output, -1.0f, 1.0f);
+	return math::constrain(_last_output, -_max_deflection_rad, _max_deflection_rad);
 }
 
 void ECL_RollController::reset_integrator()
