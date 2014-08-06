@@ -61,10 +61,10 @@ float ECL_YawController::control(float roll, float yaw_rate, float accel_y, floa
 				 float airspeed_min, float airspeed_max, float aspeed)
 {
 	/* get the usual dt estimate */
-	uint64_t dt_micros = ecl_elapsed_time(&_last_run);
+	// uint64_t dt_micros = ecl_elapsed_time(&_last_run);
 	_last_run = ecl_absolute_time();
 
-	float dt = (dt_micros > 500000) ? 0.0f : dt_micros / 1000000;
+	// float dt = (dt_micros > 500000) ? 0.0f : dt_micros / 1000000;
 
 	return 0.0f;
 }
