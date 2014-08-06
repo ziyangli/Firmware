@@ -435,7 +435,7 @@ FixedwingAttitudeControl::vehicle_accel_poll()
 	orb_check(_accel_sub, &accel_updated);
 
 	if (accel_updated) {
-		orb_copy(ORB_ID(sensor_accel), _accel_sub, &_accel);
+		orb_copy(ORB_ID(sensor_accel0), _accel_sub, &_accel);
 	}
 }
 
@@ -471,7 +471,7 @@ FixedwingAttitudeControl::task_main()
 	 */
 	_att_sp_sub = orb_subscribe(ORB_ID(vehicle_attitude_setpoint));
 	_att_sub = orb_subscribe(ORB_ID(vehicle_attitude));
-	_accel_sub = orb_subscribe(ORB_ID(sensor_accel));
+	_accel_sub = orb_subscribe(ORB_ID(sensor_accel0));
 	_airspeed_sub = orb_subscribe(ORB_ID(airspeed));
 	_vcontrol_mode_sub = orb_subscribe(ORB_ID(vehicle_control_mode));
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
@@ -603,9 +603,9 @@ FixedwingAttitudeControl::task_main()
 					 * the commanded attitude. If more than 45 degrees are desired,
 					 * a scaling parameter can be applied to the remote.
 					 */
-					roll_sp = _manual.roll * 0.75f;
-					pitch_sp = _manual.pitch * 0.75f;
-					throttle_sp = _manual.throttle;
+					roll_sp = _manual.y * 0.75f;
+					pitch_sp = -_manual.x * 0.75f;
+					throttle_sp = _manual.z;
 					_actuators.control[4] = _manual.flaps;
 
 					/*
@@ -672,10 +672,10 @@ FixedwingAttitudeControl::task_main()
 
 			} else {
 				/* manual/direct control */
-				_actuators.control[0] = _manual.roll;
-				_actuators.control[1] = _manual.pitch;
-				_actuators.control[2] = _manual.yaw;
-				_actuators.control[3] = _manual.throttle;
+				_actuators.control[0] = _manual.y;
+				_actuators.control[1] = -_manual.x;
+				_actuators.control[2] = _manual.r;
+				_actuators.control[3] = _manual.z;
 				_actuators.control[4] = _manual.flaps;
 			}
 
