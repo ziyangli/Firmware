@@ -69,7 +69,7 @@ float ECL_PitchController::control(float pitch_setpoint, float pitch, float pitc
 	if (dt_micros > 500000)
 		lock_integrator = true;
 
-	float k_roll_ff = math::max((_k_p - _k_i * _tc) * _tc - _k_d, 0.0f);
+	float k_ff = math::max((_k_p - _k_i * _tc) * _tc - _k_d, 0.0f);
 	float k_i_rate = _k_i * _tc;
 
 	/* input conditioning */
@@ -139,7 +139,7 @@ float ECL_PitchController::control(float pitch_setpoint, float pitch, float pitc
 	/* integrator limit */
 	_integrator = math::constrain(_integrator, -ilimit_scaled, ilimit_scaled);
 	/* store non-limited output */
-	_last_output = ((_rate_error * _k_d * scaler) + _integrator + (_rate_setpoint * k_roll_ff)) * scaler;
+	_last_output = ((_rate_error * _k_d * scaler) + _integrator + (_rate_setpoint * k_ff)) * scaler;
 
 	return math::constrain(_last_output, -_max_deflection_rad, _max_deflection_rad);
 }
