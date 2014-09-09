@@ -50,13 +50,6 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
-#include <nuttx/i2c.h>
-#include <nuttx/mtd.h>
-#include <nuttx/fs/nxffs.h>
-#include <nuttx/fs/ioctl.h>
-
-#include <arch/board/board.h>
-
 #include "systemlib/systemlib.h"
 #include "systemlib/err.h"
 #include "drivers/drv_pwm_output.h"

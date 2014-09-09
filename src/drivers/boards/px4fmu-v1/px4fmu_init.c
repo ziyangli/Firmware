@@ -53,7 +53,7 @@
 #include <errno.h>
 
 #include <nuttx/arch.h>
-#include <nuttx/spi.h>
+#include <nuttx/spi/spi.h>
 #include <nuttx/i2c.h>
 #include <nuttx/mmcsd.h>
 #include <nuttx/analog/adc.h>
@@ -128,7 +128,7 @@ __EXPORT void stm32_boardinitialize(void)
 	stm32_spiinitialize();
 
 	/* configure LEDs (empty call to NuttX' ledinit) */
-	up_ledinit();
+	board_led_initialize();
 }
 
 /****************************************************************************
