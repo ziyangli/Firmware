@@ -175,10 +175,11 @@ $(NUTTX_ARCHIVES): $(ARCHIVE_DIR)%.export: $(NUTTX_SRC)
 	@$(ECHO) %% Configuring NuttX for $(board)
 	$(Q) (cd $(NUTTX_SRC) && $(RMDIR) nuttx-export)
 	$(Q) $(MAKE) -r -j1 -C $(NUTTX_SRC) -r $(MQUIET) distclean
-	$(Q) (cd $(NUTTX_SRC)/configs && $(COPYDIR) $(PX4_BASE)nuttx-configs/$(board) .)
-	$(Q) (cd $(NUTTX_SRC)tools && ./configure.sh $(board)/$(configuration))
+	$(Q) $(COPY) $(PX4_BASE)nuttx-configs/$(board)/$(configuration)/defconfig $(NUTTX_SRC)/.config
+	$(Q) $(COPY) $(PX4_BASE)nuttx-configs/$(board)/$(configuration)/Make.defs $(NUTTX_SRC)/
+	$(Q) $(COPY) $(PX4_BASE)nuttx-configs/$(board)/$(configuration)/setenv.sh $(NUTTX_SRC)/
 	@$(ECHO) %% Exporting NuttX for $(board)
-	$(Q) $(MAKE) -r -j1 -C $(NUTTX_SRC) -r $(MQUIET) CONFIG_ARCH_BOARD=$(board) export
+	$(Q) $(MAKE) -r -j1 -C $(NUTTX_SRC) -r $(MQUIET) export
 	$(Q) $(MKDIR) -p $(dir $@)
 	$(Q) $(COPY) $(NUTTX_SRC)nuttx-export.zip $@
 	$(Q) (cd $(NUTTX_SRC)/configs && $(RMDIR) $(board))
