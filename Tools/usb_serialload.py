@@ -1,7 +1,7 @@
 import serial, time
 
 
-port = serial.Serial('/dev/ttyACM0', baudrate=57600, timeout=2)
+port = serial.Serial('/dev/tty.usbmodem1', baudrate=57600, timeout=2)
 
 data = '01234567890123456789012345678901234567890123456789'
 #data = 'hellohello'
