@@ -52,7 +52,7 @@
 # CONFIG_BOARD_LOOPSPERMSEC - for delay loops
 # CONFIG_DRAM_SIZE - Describes the installed DRAM.
 # CONFIG_DRAM_START - The start address of DRAM (physical)
-# CONFIG_ARCH_IRQPRIO - The ST32F100CB supports interrupt prioritization
+CONFIG_ARCH_IRQPRIO=y
 # CONFIG_ARCH_INTERRUPTSTACK - This architecture supports an interrupt
 #   stack. If defined, this symbol is the size of the interrupt
 #   stack in bytes.  If not defined, the user task stacks will be
