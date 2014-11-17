@@ -26,21 +26,27 @@ MODULES		+= drivers/lsm303d
 MODULES		+= drivers/l3gd20
 MODULES		+= drivers/hmc5883
 MODULES		+= drivers/ms5611
-MODULES		+= drivers/mb12xx
-MODULES		+= drivers/sf0x
-MODULES		+= drivers/ll40ls
+
+
 MODULES		+= drivers/gps
 MODULES		+= drivers/hil
-MODULES		+= drivers/hott/hott_telemetry
-MODULES		+= drivers/hott/hott_sensors
 MODULES		+= drivers/blinkm
-MODULES		+= drivers/airspeed
-MODULES		+= drivers/ets_airspeed
-MODULES		+= drivers/meas_airspeed
-MODULES		+= drivers/frsky_telemetry
 MODULES		+= modules/sensors
 MODULES		+= drivers/mkblctrl
-MODULES		+= drivers/px4flow
+
+# MODULES		+= drivers/ll40ls
+# MODULES		+= drivers/sf0x
+
+# MODULES		+= drivers/hott/hott_telemetry
+# MODULES		+= drivers/hott/hott_sensors
+# MODULES		+= drivers/frsky_telemetry
+
+# MODULES		+= drivers/airspeed
+# MODULES		+= drivers/ets_airspeed
+# MODULES		+= drivers/meas_airspeed
+
+# MODULES		+= drivers/mb12xx
+# MODULES		+= drivers/px4flow
 
 #
 # System commands
@@ -68,7 +74,7 @@ MODULES		+= modules/commander
 MODULES		+= modules/navigator
 MODULES		+= modules/mavlink
 MODULES		+= modules/gpio_led
-MODULES		+= modules/uavcan
+# MODULES		+= modules/uavcan
 
 #
 # Estimation modules (EKF/ SO3 / other filters)
@@ -80,9 +86,9 @@ MODULES		+= modules/position_estimator_inav
 #
 # Vehicle Control
 #
-#MODULES		+= modules/segway # XXX Needs GCC 4.7 fix
-MODULES		+= modules/fw_pos_control_l1
-MODULES		+= modules/fw_att_control
+# MODULES		+= modules/segway # XXX Needs GCC 4.7 fix
+# MODULES		+= modules/fw_pos_control_l1
+# MODULES		+= modules/fw_att_control
 MODULES		+= modules/mc_att_control
 MODULES		+= modules/mc_pos_control
 
@@ -116,7 +122,7 @@ MODULES		+= lib/launchdetection
 #
 # OBC challenge
 #
-MODULES		+= modules/bottle_drop
+# MODULES		+= modules/bottle_drop
 
 #
 # Demo apps
