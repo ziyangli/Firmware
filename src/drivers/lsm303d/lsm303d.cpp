@@ -309,10 +309,10 @@ private:
 	// accel logging
 	int			_accel_log_fd;
 	bool			_accel_logging_enabled;
-	uint64_t		_last_extreme_us;	
-	uint64_t		_last_log_us;	
-	uint64_t		_last_log_sync_us;	
-	uint64_t		_last_log_reg_us;	
+	uint64_t		_last_extreme_us;
+	uint64_t		_last_log_us;
+	uint64_t		_last_log_sync_us;
+	uint64_t		_last_log_reg_us;
 	uint64_t		_last_log_alarm_us;
 	enum Rotation		_rotation;
 

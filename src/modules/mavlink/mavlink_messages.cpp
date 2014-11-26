@@ -104,14 +104,15 @@ void get_mavlink_mode_state(struct vehicle_status_s *status, struct position_set
 
 	/* HIL */
 	if (status->hil_state == HIL_STATE_ON) {
-		*mavlink_base_mode |= MAV_MODE_FLAG_HIL_ENABLED;
+      *mavlink_base_mode |= MAV_MODE_FLAG_HIL_ENABLED;
 	}
 
 	/* arming state */
-	if (status->arming_state == ARMING_STATE_ARMED
-	    || status->arming_state == ARMING_STATE_ARMED_ERROR) {
+	if (status->arming_state == ARMING_STATE_ARMED ||
+        status->arming_state == ARMING_STATE_ARMED_ERROR)
+      {
 		*mavlink_base_mode |= MAV_MODE_FLAG_SAFETY_ARMED;
-	}
+      }
 
 	/* main state */
 	*mavlink_base_mode |= MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
@@ -122,10 +123,11 @@ void get_mavlink_mode_state(struct vehicle_status_s *status, struct position_set
 	switch (status->nav_state) {
 
 		case NAVIGATION_STATE_MANUAL:
-			*mavlink_base_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED
-			                      | (status->is_rotary_wing ? MAV_MODE_FLAG_STABILIZE_ENABLED : 0);
-			custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_MANUAL;
-			break;
+          *mavlink_base_mode |=
+            ( MAV_MODE_FLAG_MANUAL_INPUT_ENABLED |
+              (status->is_rotary_wing ? MAV_MODE_FLAG_STABILIZE_ENABLED : 0) );
+          custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_MANUAL;
+          break;
 
 		case NAVIGATION_STATE_ACRO:
 			*mavlink_base_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
@@ -134,7 +136,7 @@ void get_mavlink_mode_state(struct vehicle_status_s *status, struct position_set
 
 		case NAVIGATION_STATE_ALTCTL:
 			*mavlink_base_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED
-			                      | MAV_MODE_FLAG_STABILIZE_ENABLED;
+              | MAV_MODE_FLAG_STABILIZE_ENABLED;
 			custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_ALTCTL;
 			break;
 
@@ -276,12 +278,12 @@ private:
 	MavlinkStreamHeartbeat& operator = (const MavlinkStreamHeartbeat &);
 
 protected:
-	explicit MavlinkStreamHeartbeat(Mavlink *mavlink) : MavlinkStream(mavlink),
+  explicit MavlinkStreamHeartbeat(Mavlink *mavlink) : MavlinkStream(mavlink),
 		_status_sub(_mavlink->add_orb_subscription(ORB_ID(vehicle_status))),
 		_pos_sp_triplet_sub(_mavlink->add_orb_subscription(ORB_ID(position_setpoint_triplet)))
 	{}
 
-	void send(const hrt_abstime t)
+  void send(const hrt_abstime t)
 	{
 		struct vehicle_status_s status;
 		struct position_setpoint_triplet_s pos_sp_triplet;
@@ -307,6 +309,7 @@ protected:
 		msg.mavlink_version = 3;
 
 		_mavlink->send_message(MAVLINK_MSG_ID_HEARTBEAT, &msg);
+
 	}
 };
 
@@ -1817,9 +1820,10 @@ protected:
 
 	void send(const hrt_abstime t)
 	{
-		struct manual_control_setpoint_s manual;
+      // not used at all?
+      struct manual_control_setpoint_s manual;
 
-		if (_manual_sub->update(&_manual_time, &manual)) {
+      if (_manual_sub->update(&_manual_time, &manual)) {
 			mavlink_manual_control_t msg;
 
 			msg.target = mavlink_system.sysid;

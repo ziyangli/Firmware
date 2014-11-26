@@ -21,14 +21,16 @@ MODULES		+= drivers/px4fmu
 MODULES		+= drivers/px4io
 MODULES		+= drivers/boards/px4fmu-v2
 MODULES		+= drivers/rgbled
-MODULES		+= drivers/mpu6000
-MODULES		+= drivers/lsm303d
-MODULES		+= drivers/l3gd20
-MODULES		+= drivers/hmc5883
-MODULES		+= drivers/ms5611
+
+MODULES		+= drivers/mpu6000	## acc/gyro
+MODULES		+= drivers/lsm303d	## acc/mag
+MODULES		+= drivers/l3gd20	## gyro
+MODULES		+= drivers/ms5611	## baro
 
 
-MODULES		+= drivers/gps
+MODULES		+= drivers/hmc5883	## mag
+MODULES		+= drivers/gps		## gps
+
 MODULES		+= drivers/hil
 MODULES		+= drivers/blinkm
 MODULES		+= modules/sensors
