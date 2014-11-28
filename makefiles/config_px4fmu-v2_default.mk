@@ -27,17 +27,18 @@ MODULES		+= drivers/lsm303d	## acc/mag
 MODULES		+= drivers/l3gd20	## gyro
 MODULES		+= drivers/ms5611	## baro
 
-
 MODULES		+= drivers/hmc5883	## mag
 MODULES		+= drivers/gps		## gps
 
 MODULES		+= drivers/hil
-MODULES		+= drivers/blinkm
+# MODULES		+= drivers/blinkm
+
 MODULES		+= modules/sensors
 MODULES		+= drivers/mkblctrl
 
-# MODULES		+= drivers/ll40ls
+# MODULES		+= drivers/ll40ls ## lidar
 # MODULES		+= drivers/sf0x
+# MODULES		+= drivers/trone ## teraOne range finder
 
 # MODULES		+= drivers/hott/hott_telemetry
 # MODULES		+= drivers/hott/hott_sensors
@@ -47,7 +48,7 @@ MODULES		+= drivers/mkblctrl
 # MODULES		+= drivers/ets_airspeed
 # MODULES		+= drivers/meas_airspeed
 
-# MODULES		+= drivers/mb12xx
+# MODULES		+= drivers/mb12xx ## sonar
 # MODULES		+= drivers/px4flow
 
 #
