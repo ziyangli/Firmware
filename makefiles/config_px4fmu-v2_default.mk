@@ -21,6 +21,7 @@ MODULES		+= drivers/px4fmu
 MODULES		+= drivers/px4io
 MODULES		+= drivers/boards/px4fmu-v2
 MODULES		+= drivers/rgbled
+# MODULES		+= drivers/blinkm ## blimkM smart led
 
 MODULES		+= drivers/mpu6000	## acc/gyro
 MODULES		+= drivers/lsm303d	## acc/mag
@@ -31,7 +32,6 @@ MODULES		+= drivers/hmc5883	## mag
 MODULES		+= drivers/gps		## gps
 
 MODULES		+= drivers/hil
-# MODULES		+= drivers/blinkm
 
 MODULES		+= modules/sensors
 MODULES		+= drivers/mkblctrl
