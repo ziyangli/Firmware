@@ -269,6 +269,16 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 
 	thread_running = true;
 
+	/* advertise debug value */
+	struct debug_key_value_s dbg;
+   	memset(&dbg, 0, sizeof(dbg));
+    char debug_name[10] = "mc_debug";
+    memcpy(dbg.key, debug_name, sizeof(debug_name));
+    dbg.value = 0.0f;
+	orb_advert_t pub_dbg = orb_advertise(ORB_ID(debug_key_value), &dbg);
+    // dbg.value = z_k[6];
+    // orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
+
 	/* keep track of sensor updates: gyro, acc, mag */
 	uint64_t sensor_last_timestamp[3] = {0, 0, 0};
 
@@ -408,6 +418,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 
 #ifdef SIMPLE_FUSION
                     vel_valid = false;
+
 #endif
 
 					if (vel_valid) {
@@ -440,9 +451,11 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						sensor_last_timestamp[2] = raw.magnetometer_timestamp;
 					}
 
+#ifndef SIMPLE_FUSION
 					z_k[6] = raw.magnetometer_ga[0];
 					z_k[7] = raw.magnetometer_ga[1];
 					z_k[8] = raw.magnetometer_ga[2];
+#endif
 
 					uint64_t now = hrt_absolute_time();
 					unsigned int time_elapsed = now - last_run;
