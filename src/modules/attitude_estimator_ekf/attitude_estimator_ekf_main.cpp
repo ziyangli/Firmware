@@ -256,6 +256,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 	int sub_global_pos = orb_subscribe(ORB_ID(vehicle_global_position));
 
 	/* subscribe to param changes */
+    /* in face, only timestamp */
 	int sub_params = orb_subscribe(ORB_ID(parameter_update));
 
 	/* subscribe to control mode*/
@@ -268,18 +269,16 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 
 	thread_running = true;
 
-	/* advertise debug value */
-	// struct debug_key_value_s dbg = { .key = "", .value = 0.0f };
-	// orb_advert_t pub_dbg = -1;
-
-	/* keep track of sensor updates */
+	/* keep track of sensor updates: gyro, acc, mag */
 	uint64_t sensor_last_timestamp[3] = {0, 0, 0};
 
 	struct attitude_estimator_ekf_params ekf_params;
 
 	struct attitude_estimator_ekf_param_handles ekf_param_handles;
 
-	/* initialize parameter handles */
+	/* initialize parameter handles
+       in fact, load default measurement noise and process noise to param_handles
+     */
 	parameters_init(&ekf_param_handles);
 
 	bool initialized = false;
@@ -304,11 +303,11 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 		fds[0].events = POLLIN;
 		fds[1].fd = sub_params;
 		fds[1].events = POLLIN;
-		int ret = poll(fds, 2, 1000);
+		int ret = poll(fds, 2, 1000); // pull for 1000 microseconds
 
 		if (ret < 0) {
 			/* XXX this is seriously bad - should be an emergency */
-		} else if (ret == 0) {
+		} else if (ret == 0){
 			/* check if we're in HIL - not getting sensor data is fine then */
 			orb_copy(ORB_ID(vehicle_control_mode), sub_control_mode, &control_mode);
 
@@ -324,7 +323,9 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 				struct parameter_update_s update;
 				orb_copy(ORB_ID(parameter_update), sub_params, &update);
 
-				/* update parameters */
+				/* update parameters
+                   i.e. process noise or measurement noise updated
+                 */
 				parameters_update(&ekf_param_handles, &ekf_params);
 			}
 
@@ -439,11 +440,9 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						sensor_last_timestamp[2] = raw.magnetometer_timestamp;
 					}
 
-#ifndef SIMPLE_FUSION
 					z_k[6] = raw.magnetometer_ga[0];
 					z_k[7] = raw.magnetometer_ga[1];
 					z_k[8] = raw.magnetometer_ga[2];
-#endif
 
 					uint64_t now = hrt_absolute_time();
 					unsigned int time_elapsed = now - last_run;
@@ -460,6 +459,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					if (!const_initialized && dt < 0.05f && dt > 0.001f) {
 						dt = 0.005f;  // limit to 200Hz
 
+                        // what's the point? update covariances before real calculation?
 						parameters_update(&ekf_param_handles, &ekf_params);
 
 						/* update mag declination rotation matrix */
@@ -474,8 +474,8 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						R_decl.from_euler(0.0f, 0.0f, mag_decl);
 
 #ifdef SIMPLE_FUSION
-                        mag_decl = 0.0f;
-                        R_decl.identity();
+                        mag_decl = ekf_params.mag_decl;
+                        R_decl.from_euler(0.0f, 0.0f, mag_decl);
                         update_vect[2] = 0;
 #endif
 
@@ -526,17 +526,17 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					att.rollspeed = x_aposteriori[0];
 					att.pitchspeed = x_aposteriori[1];
 					att.yawspeed = x_aposteriori[2];
+
                     // ?? should be regarded as acc or as offsets?
 					att.rollacc = x_aposteriori[3];
 					att.pitchacc = x_aposteriori[4];
 					att.yawacc = x_aposteriori[5];
+					/* copy offsets */
+					memcpy(&att.rate_offsets, &(x_aposteriori[3]), sizeof(att.rate_offsets));
 
 					att.g_comp[0] = raw.accelerometer_m_s2[0] - acc(0);
 					att.g_comp[1] = raw.accelerometer_m_s2[1] - acc(1);
 					att.g_comp[2] = raw.accelerometer_m_s2[2] - acc(2);
-
-					/* copy offsets */
-					memcpy(&att.rate_offsets, &(x_aposteriori[3]), sizeof(att.rate_offsets));
 
 					/* magnetic declination */
 					math::Matrix<3, 3> R_body = (&Rot_matrix[0]);

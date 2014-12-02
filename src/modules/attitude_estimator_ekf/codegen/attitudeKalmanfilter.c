@@ -308,7 +308,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
     A_lin[21] = -x_aposteriori_k[11];
     A_lin[22] = 0.0F;
     A_lin[23] = x_aposteriori_k[9];
-    A_lin[33] = x_aposteriori_k[7];
+    A_lin[33] = x_aposteriori_k[10];
     A_lin[34] = -x_aposteriori_k[9];
     A_lin[35] = 0.0F;
     for (i = 0; i < 3; i++) {
