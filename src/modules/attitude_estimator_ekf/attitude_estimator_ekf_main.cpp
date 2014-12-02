@@ -87,7 +87,7 @@ static bool thread_should_exit = false; /**< Deamon exit flag */
 static bool thread_running = false;		/**< Deamon status flag */
 static int attitude_estimator_ekf_task; /**< Handle of deamon task / thread */
 
-#define SIMPLE_FUSION 1
+#define SIMPLE_FUSION
 
 /**
  * Mainloop of attitude_estimator_ekf.
@@ -316,7 +316,6 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 				fprintf(stderr,
 					"[att ekf] WARNING: Not getting sensors - sensor app running?\n");
 			}
-
 		} else {
 
 			/* only update parameters if they changed */
@@ -356,21 +355,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 				}
 
 				if (!initialized) {
-					// XXX disabling init for now
 					initialized = true;
-
-					// gyro_offsets[0] += raw.gyro_rad_s[0];
-					// gyro_offsets[1] += raw.gyro_rad_s[1];
-					// gyro_offsets[2] += raw.gyro_rad_s[2];
-					// offset_count++;
-
-					// if (hrt_absolute_time() - start_time > 3000000LL) {
-					// 	initialized = true;
-					// 	gyro_offsets[0] /= offset_count;
-					// 	gyro_offsets[1] /= offset_count;
-					// 	gyro_offsets[2] /= offset_count;
-					// }
-
 				} else {
 
 					perf_begin(ekf_loop_perf);
@@ -409,7 +394,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 							vel(2) = gps.vel_d_m_s;
 						}
 					}
-                    // compensate with global NED
+                    // compensate with global NED, default behavior
                     else if (ekf_params.acc_comp == 2 && gps.eph < 5.0f && global_pos.timestamp != 0 && hrt_absolute_time() < global_pos.timestamp + 20000) {
 						vel_valid = true;
 						if (global_pos_updated) {
@@ -454,9 +439,11 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						sensor_last_timestamp[2] = raw.magnetometer_timestamp;
 					}
 
+#ifndef SIMPLE_FUSION
 					z_k[6] = raw.magnetometer_ga[0];
 					z_k[7] = raw.magnetometer_ga[1];
 					z_k[8] = raw.magnetometer_ga[2];
+#endif
 
 					uint64_t now = hrt_absolute_time();
 					unsigned int time_elapsed = now - last_run;
@@ -472,6 +459,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					/* initialize with good values once we have a reasonable dt estimate */
 					if (!const_initialized && dt < 0.05f && dt > 0.001f) {
 						dt = 0.005f;  // limit to 200Hz
+
 						parameters_update(&ekf_param_handles, &ekf_params);
 
 						/* update mag declination rotation matrix */
@@ -529,7 +517,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					last_data = raw.timestamp;
 
 					/* send out */
-					att.timestamp = raw.timestamp;
+					att.timestamp = raw.timestamp; // same time as sensor???
 
 					att.roll = euler[0];
 					att.pitch = euler[1];
@@ -538,7 +526,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					att.rollspeed = x_aposteriori[0];
 					att.pitchspeed = x_aposteriori[1];
 					att.yawspeed = x_aposteriori[2];
-                    // ?? should be regarded as acc or offsets?
+                    // ?? should be regarded as acc or as offsets?
 					att.rollacc = x_aposteriori[3];
 					att.pitchacc = x_aposteriori[4];
 					att.yawacc = x_aposteriori[5];

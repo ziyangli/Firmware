@@ -260,9 +260,9 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
     }
 
     /* 'attitudeKalmanfilter:81' A_lin=[ Z,  E,  Z,  Z */
-    /* 'attitudeKalmanfilter:82'     Z,  Z,  Z,  Z */
-    /* 'attitudeKalmanfilter:83'     EZ, Z,  O,  Z */
-    /* 'attitudeKalmanfilter:84'     MA, Z,  Z,  O]; */
+    /* 'attitudeKalmanfilter:82'         Z,  Z,  Z,  Z */
+    /* 'attitudeKalmanfilter:83'         EZ, Z,  O,  Z */
+    /* 'attitudeKalmanfilter:84'         MA, Z,  Z,  O]; */
     /* 'attitudeKalmanfilter:86' A_lin=eye(12)+A_lin*dt; */
     b_eye(dv1);
     for (i = 0; i < 12; i++) {
@@ -498,8 +498,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
         for (i0 = 0; i0 < 12; i0++) {
             A_lin[i + 12 * i0] = 0.0F;
             for (i1 = 0; i1 < 12; i1++) {
-                A_lin[i + 12 * i0] += b_A_lin[i + 12 * i1] * P_aposteriori_k[i1 + 12 *
-                                                                             i0];
+                A_lin[i + 12 * i0] += b_A_lin[i + 12 * i1] * P_aposteriori_k[i1 + 12 * i0];
             }
 
             c_A_lin[i + 12 * i0] = 0.0F;
@@ -536,7 +535,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
             r[1] = 10000.0F;
         }
 
-        /* 'attitudeKalmanfilter:114' R=[r(1),0,0,0,0,0,0,0,0; */
+        /* 'attitudeKalmanfilter:114'      R=[r(1),0,0,0,0,0,0,0,0; */
         /* 'attitudeKalmanfilter:115'         0,r(1),0,0,0,0,0,0,0; */
         /* 'attitudeKalmanfilter:116'         0,0,r(1),0,0,0,0,0,0; */
         /* 'attitudeKalmanfilter:117'         0,0,0,r(2),0,0,0,0,0; */
@@ -547,7 +546,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
         /* 'attitudeKalmanfilter:122'         0,0,0,0,0,0,0,0,r(3)]; */
         /* observation matrix */
         /* [zw;ze;zmk]; */
-        /* 'attitudeKalmanfilter:125' H_k=[  E,     Z,      Z,    Z; */
+        /* 'attitudeKalmanfilter:125'  H_k=[  E,     Z,      Z,    Z; */
         /* 'attitudeKalmanfilter:126'         Z,     Z,      E,    Z; */
         /* 'attitudeKalmanfilter:127'         Z,     Z,      Z,    E]; */
         /* 'attitudeKalmanfilter:129' y_k=z(1:9)-H_k*x_apriori; */
@@ -557,8 +556,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
             for (i0 = 0; i0 < 9; i0++) {
                 b_P_apriori[i + 12 * i0] = 0.0F;
                 for (i1 = 0; i1 < 12; i1++) {
-                    b_P_apriori[i + 12 * i0] += P_apriori[i + 12 * i1] * (real32_T)iv1[i1
-                                                                                       + 12 * i0];
+                    b_P_apriori[i + 12 * i0] += P_apriori[i + 12 * i1] * (real32_T)iv1[i1 + 12 * i0];
                 }
             }
         }
@@ -713,7 +711,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
         /* 'attitudeKalmanfilter:138' else */
         /* 'attitudeKalmanfilter:139' if updateVect(1)==1&&updateVect(2)==0&&updateVect(3)==0 */
         if ((updateVect[0] == 1) && (updateVect[1] == 0) && (updateVect[2] == 0)) {
-            /* 'attitudeKalmanfilter:141' R=[r(1),0,0; */
+            /* 'attitudeKalmanfilter:141'          R=[r(1),0,0; */
             /* 'attitudeKalmanfilter:142'             0,r(1),0; */
             /* 'attitudeKalmanfilter:143'             0,0,r(1)]; */
             /* observation matrix */
@@ -817,14 +815,14 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
                         r[1] = 10000.0F;
                     }
 
-                    /* 'attitudeKalmanfilter:162' R=[r(1),0,0,0,0,0; */
+                    /* 'attitudeKalmanfilter:162'              R=[r(1),0,0,0,0,0; */
                     /* 'attitudeKalmanfilter:163'                 0,r(1),0,0,0,0; */
                     /* 'attitudeKalmanfilter:164'                 0,0,r(1),0,0,0; */
                     /* 'attitudeKalmanfilter:165'                 0,0,0,r(2),0,0; */
                     /* 'attitudeKalmanfilter:166'                 0,0,0,0,r(2),0; */
                     /* 'attitudeKalmanfilter:167'                 0,0,0,0,0,r(2)]; */
                     /* observation matrix */
-                    /* 'attitudeKalmanfilter:170' H_k=[  E,     Z,      Z,    Z; */
+                    /* 'attitudeKalmanfilter:170'          H_k=[  E,     Z,      Z,    Z; */
                     /* 'attitudeKalmanfilter:171'                 Z,     Z,      E,    Z]; */
                     /* 'attitudeKalmanfilter:173' y_k=z(1:6)-H_k(1:6,1:12)*x_apriori; */
                     /* 'attitudeKalmanfilter:175' S_k=H_k(1:6,1:12)*P_apriori*H_k(1:6,1:12)'+R(1:6,1:6); */
@@ -946,14 +944,14 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
                 /* 'attitudeKalmanfilter:182' if  updateVect(1)==1&&updateVect(2)==0&&updateVect(3)==1 */
                 if ((updateVect[0] == 1) && (updateVect[1] == 0) && (updateVect[2] == 1))
                     {
-                        /* 'attitudeKalmanfilter:183' R=[r(1),0,0,0,0,0; */
+                        /* 'attitudeKalmanfilter:183'                  R=[r(1),0,0,0,0,0; */
                         /* 'attitudeKalmanfilter:184'                     0,r(1),0,0,0,0; */
                         /* 'attitudeKalmanfilter:185'                     0,0,r(1),0,0,0; */
                         /* 'attitudeKalmanfilter:186'                     0,0,0,r(3),0,0; */
                         /* 'attitudeKalmanfilter:187'                     0,0,0,0,r(3),0; */
                         /* 'attitudeKalmanfilter:188'                     0,0,0,0,0,r(3)]; */
                         /* observation matrix */
-                        /* 'attitudeKalmanfilter:191' H_k=[  E,     Z,      Z,    Z; */
+                        /* 'attitudeKalmanfilter:191'              H_k=[  E,     Z,      Z,    Z; */
                         /* 'attitudeKalmanfilter:192'                     Z,     Z,      Z,    E]; */
                         /* 'attitudeKalmanfilter:194' y_k=[z(1:3);z(7:9)]-H_k(1:6,1:12)*x_apriori; */
                         /* 'attitudeKalmanfilter:196' S_k=H_k(1:6,1:12)*P_apriori*H_k(1:6,1:12)'+R(1:6,1:6); */
@@ -972,16 +970,14 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
                             for (i0 = 0; i0 < 12; i0++) {
                                 c_K_k[i + 6 * i0] = 0.0F;
                                 for (i1 = 0; i1 < 12; i1++) {
-                                    c_K_k[i + 6 * i0] += (real32_T)iv8[i + 6 * i1] * P_apriori[i1 +
-                                                                                               12 * i0];
+                                    c_K_k[i + 6 * i0] += (real32_T)iv8[i + 6 * i1] * P_apriori[i1 + 12 * i0];
                                 }
                             }
 
                             for (i0 = 0; i0 < 6; i0++) {
                                 fv2[i + 6 * i0] = 0.0F;
                                 for (i1 = 0; i1 < 12; i1++) {
-                                    fv2[i + 6 * i0] += c_K_k[i + 6 * i1] * (real32_T)iv7[i1 + 12 *
-                                                                                         i0];
+                                    fv2[i + 6 * i0] += c_K_k[i + 6 * i1] * (real32_T)iv7[i1 + 12 * i0];
                                 }
                             }
                         }
@@ -1102,8 +1098,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
     rdivide(x_n_b, norm(*(real32_T (*)[3])&x_aposteriori[6]), z_n_b);
 
     /* 'attitudeKalmanfilter:214' m_n_b = x_aposteriori(10:12)./norm(x_aposteriori(10:12)); */
-    rdivide(*(real32_T (*)[3])&x_aposteriori[9], norm(*(real32_T (*)[3])&
-                                                      x_aposteriori[9]), wak);
+    rdivide(*(real32_T (*)[3])&x_aposteriori[9], norm(*(real32_T (*)[3])&x_aposteriori[9]), wak);
 
     /* 'attitudeKalmanfilter:216' y_n_b=cross(z_n_b,m_n_b); */
     for (i = 0; i < 3; i++) {
