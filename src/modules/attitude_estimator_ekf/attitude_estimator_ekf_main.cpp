@@ -177,7 +177,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 
 	float dt = 0.005f; // limit to 200Hz
 
-    /**< Measurement vector [w, a, m]' */
+    /* Measurement vector [\omega, acc, mag]' */
 	float z_k[9] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 9.81f, 0.2f, -0.2f, 0.2f};
 
     /* state vector x has the following entries [wx,wy,wz||wax,way,waz||ax,ay,az||mx,my,mz]' */
@@ -208,7 +208,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
                            0.f, 0.f, 1.f
     };                          /* init: identity matrix */
 
-	int overloadcounter = 19;
+	int overloadcounter = 19;   // why 19?
 
 	/* Initialize filter */
 	attitudeKalmanfilter_initialize(); /* define NaN and Inf */
@@ -227,9 +227,9 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 	struct vehicle_control_mode_s control_mode;
 	memset(&control_mode, 0, sizeof(control_mode));
 
-	uint64_t last_data = 0;
-	uint64_t last_measurement = 0;
-	uint64_t last_vel_t = 0;
+	uint64_t last_data = 0;     // for sensor time
+	uint64_t last_measurement = 0; // same as last_data?
+	uint64_t last_vel_t = 0;       // for acc compensation
 
 	/* current velocity */
 	math::Vector<3> vel;
@@ -256,7 +256,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 	int sub_global_pos = orb_subscribe(ORB_ID(vehicle_global_position));
 
 	/* subscribe to param changes */
-    /* in face, only timestamp */
+    /* in fact, only timestamp */
 	int sub_params = orb_subscribe(ORB_ID(parameter_update));
 
 	/* subscribe to control mode*/
@@ -276,8 +276,6 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
     memcpy(dbg.key, debug_name, sizeof(debug_name));
     dbg.value = 0.0f;
 	orb_advert_t pub_dbg = orb_advertise(ORB_ID(debug_key_value), &dbg);
-    // dbg.value = z_k[6];
-    // orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 
 	/* keep track of sensor updates: gyro, acc, mag */
 	uint64_t sensor_last_timestamp[3] = {0, 0, 0};
@@ -292,8 +290,6 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 	parameters_init(&ekf_param_handles);
 
 	bool initialized = false;
-
-	float gyro_offsets[3] = { 0.0f, 0.0f, 0.0f };
 
 	/* magnetic declination, in radians */
 	float mag_decl = 0.0f;
@@ -383,9 +379,9 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					}
 
                     // update \omega_k
-					z_k[0] =  raw.gyro_rad_s[0] - gyro_offsets[0];
-					z_k[1] =  raw.gyro_rad_s[1] - gyro_offsets[1];
-					z_k[2] =  raw.gyro_rad_s[2] - gyro_offsets[2];
+					z_k[0] =  raw.gyro_rad_s[0];
+					z_k[1] =  raw.gyro_rad_s[1];
+					z_k[2] =  raw.gyro_rad_s[2];
 
 					/* update accelerometer measurements */
 					if (sensor_last_timestamp[1] != raw.accelerometer_timestamp) {
