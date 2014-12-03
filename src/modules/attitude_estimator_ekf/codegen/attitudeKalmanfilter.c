@@ -331,8 +331,7 @@ void attitudeKalmanfilter(const uint8_T updateVect[3], real32_T dt, const
 
     for (i = 0; i < 12; i++) {
         for (i0 = 0; i0 < 12; i0++) {
-            b_A_lin[i0 + 12 * i] = (real32_T)dv1[i0 + 12 * i] + A_lin[i0 + 12 * i] *
-                dt;
+            b_A_lin[i0 + 12 * i] = (real32_T)dv1[i0 + 12 * i] + A_lin[i0 + 12 * i] * dt;
         }
     }
 

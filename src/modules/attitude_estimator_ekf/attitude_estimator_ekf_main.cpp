@@ -87,8 +87,6 @@ static bool thread_should_exit = false; /**< Deamon exit flag */
 static bool thread_running = false;		/**< Deamon status flag */
 static int attitude_estimator_ekf_task; /**< Handle of deamon task / thread */
 
-#define SIMPLE_FUSION
-
 /**
  * Mainloop of attitude_estimator_ekf.
  */
@@ -269,13 +267,15 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 
 	thread_running = true;
 
-	/* advertise debug value */
-	struct debug_key_value_s dbg;
-   	memset(&dbg, 0, sizeof(dbg));
-    char debug_name[10] = "mc_debug";
-    memcpy(dbg.key, debug_name, sizeof(debug_name));
-    dbg.value = 0.0f;
-	orb_advert_t pub_dbg = orb_advertise(ORB_ID(debug_key_value), &dbg);
+	// /* advertise debug value */
+	// struct debug_key_value_s dbg;
+   	// memset(&dbg, 0, sizeof(dbg));
+    // char debug_name[10] = "mc_debug";
+    // memcpy(dbg.key, debug_name, sizeof(debug_name));
+    // dbg.value = 0.0f;
+	// orb_advert_t pub_dbg = orb_advertise(ORB_ID(debug_key_value), &dbg);
+    // dbg.value = z_k[7];
+    // orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 
 	/* keep track of sensor updates: gyro, acc, mag */
 	uint64_t sensor_last_timestamp[3] = {0, 0, 0};
@@ -290,6 +290,8 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 	parameters_init(&ekf_param_handles);
 
 	bool initialized = false;
+
+    bool simple_fusion = false;
 
 	/* magnetic declination, in radians */
 	float mag_decl = 0.0f;
@@ -322,6 +324,15 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					"[att ekf] WARNING: Not getting sensors - sensor app running?\n");
 			}
 		} else {
+
+            // check if we're in offboard/manual mode - turn off fusion of gps and magnetometer
+            orb_copy(ORB_ID(vehicle_control_mode), sub_control_mode, &control_mode);
+            if (!control_mode.flag_control_altitude_enabled || control_mode.flag_control_offboard_enabled) {
+                simple_fusion = true;
+            }
+            else {
+                simple_fusion = false;
+            }
 
 			/* only update parameters if they changed */
 			if (fds[1].revents & POLLIN) {
@@ -412,10 +423,9 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						}
 					}
 
-#ifdef SIMPLE_FUSION
-                    vel_valid = false;
-
-#endif
+                    if (simple_fusion) {
+                        vel_valid = false;
+                    }
 
 					if (vel_valid) {
 						/* velocity is valid */
@@ -447,11 +457,9 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						sensor_last_timestamp[2] = raw.magnetometer_timestamp;
 					}
 
-#ifndef SIMPLE_FUSION
 					z_k[6] = raw.magnetometer_ga[0];
 					z_k[7] = raw.magnetometer_ga[1];
 					z_k[8] = raw.magnetometer_ga[2];
-#endif
 
 					uint64_t now = hrt_absolute_time();
 					unsigned int time_elapsed = now - last_run;
@@ -482,12 +490,6 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						/* update mag declination rotation matrix */
 						R_decl.from_euler(0.0f, 0.0f, mag_decl);
 
-#ifdef SIMPLE_FUSION
-                        mag_decl = ekf_params.mag_decl;
-                        R_decl.from_euler(0.0f, 0.0f, mag_decl);
-                        update_vect[2] = 0;
-#endif
-
 						x_aposteriori_k[0] = z_k[0];
 						x_aposteriori_k[1] = z_k[1];
 						x_aposteriori_k[2] = z_k[2];
@@ -508,6 +510,13 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 					if (!const_initialized) {
 						continue;
 					}
+
+                    // reset
+                    if (simple_fusion) {
+                        mag_decl = ekf_params.mag_decl;
+                        R_decl.from_euler(0.0f, 0.0f, mag_decl);
+                        update_vect[2] = 0;
+                    }
 
 					attitudeKalmanfilter(update_vect, dt, z_k, x_aposteriori_k, P_aposteriori_k, ekf_params.q, ekf_params.r, euler, Rot_matrix, x_aposteriori, P_aposteriori);
 
