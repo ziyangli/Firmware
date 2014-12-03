@@ -457,9 +457,11 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						sensor_last_timestamp[2] = raw.magnetometer_timestamp;
 					}
 
-					z_k[6] = raw.magnetometer_ga[0];
-					z_k[7] = raw.magnetometer_ga[1];
-					z_k[8] = raw.magnetometer_ga[2];
+                    if (!simple_fusion) {
+                        z_k[6] = raw.magnetometer_ga[0];
+                        z_k[7] = raw.magnetometer_ga[1];
+                        z_k[8] = raw.magnetometer_ga[2];
+                    }
 
 					uint64_t now = hrt_absolute_time();
 					unsigned int time_elapsed = now - last_run;
