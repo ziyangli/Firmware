@@ -327,7 +327,8 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 
             // check if we're in offboard/manual mode - turn off fusion of gps and magnetometer
             orb_copy(ORB_ID(vehicle_control_mode), sub_control_mode, &control_mode);
-            if (!control_mode.flag_control_altitude_enabled || control_mode.flag_control_offboard_enabled) {
+            //  if (!control_mode.flag_control_altitude_enabled || control_mode.flag_control_offboard_enabled) {
+            if (control_mode.flag_control_offboard_enabled) {
                 simple_fusion = true;
             }
             else {
