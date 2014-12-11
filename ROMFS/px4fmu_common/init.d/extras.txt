@@ -1,0 +1,19 @@
+#!nsh
+#
+# USB MAVLink start
+#
+
+mavlink start -d /dev/ttyS6 -b 460800
+# Enable a number of interesting streams we want via Serial 4
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s NAMED_VALUE_FLOAT -r 10
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s ATTITUDE -r 300
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s ATTITUDE_CONTROLS -r 30
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s RC_CHANNELS_RAW -r 300
+usleep 100000
+
+# Exit shell to make it available to MAVLink
+exit

@@ -106,7 +106,7 @@ public:
 	void		lock_release();
 
 private:
-	bool		_task_should_exit;		/**< if true, task should exit */
+	bool	_task_should_exit;  /**< if true, task should exit */
 	int		_main_task;			/**< handle for task */
 	int		_mavlink_fd;
 

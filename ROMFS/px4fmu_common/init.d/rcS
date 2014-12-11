@@ -9,7 +9,8 @@ set MODE autostart
 
 set RC_FILE /fs/microsd/etc/rc.txt
 set CONFIG_FILE /fs/microsd/etc/config.txt
-set EXTRAS_FILE /fs/microsd/etc/extras.txt
+# set EXTRAS_FILE /fs/microsd/etc/extras.txt
+set EXTRAS_FILE /etc/init.d/extras.txt
 
 set TUNE_OUT_ERROR ML<<CP4CP4CP4CP4CP4
 
@@ -424,7 +425,7 @@ then
 		fi
 	fi
 
-	mavlink start $MAVLINK_FLAGS
+    # mavlink start $MAVLINK_FLAGS
 
 	#
 	# UAVCAN

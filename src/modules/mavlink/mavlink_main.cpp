@@ -298,6 +298,7 @@ Mavlink::get_instance_for_device(const char *device_name)
 {
 	Mavlink *inst;
 
+    // ::_mavlink_instances refer to value of upper processes
 	LL_FOREACH(::_mavlink_instances, inst) {
 		if (strcmp(inst->_device_name, device_name) == 0) {
 			return inst;
@@ -943,7 +944,6 @@ Mavlink::configure_stream(const char *stream_name, const float rate)
 			if (interval > 0) {
 				/* set new interval */
 				stream->set_interval(interval);
-
 			} else {
 				/* delete stream */
 				LL_DELETE(_streams, stream);
@@ -1020,6 +1020,8 @@ Mavlink::configure_stream_threadsafe(const char *stream_name, const float rate)
 		unsigned n = strlen(stream_name) + 1;
 		char *s = new char[n];
 		strcpy(s, stream_name);
+
+        // why is this thread safe?
 
 		/* set subscription task */
 		_subscribe_to_stream_rate = rate;
@@ -1749,13 +1751,16 @@ Mavlink::stream_command(int argc, char *argv[])
 	}
 
 	if (!err_flag && rate >= 0.0f && stream_name != nullptr) {
+        /* get a pointer to the port
+           /dev/ttyS6 or /dev/ttyACM0 or something else
+        */
 		Mavlink *inst = get_instance_for_device(device_name);
 
+        /* now `inst` point to a static place
+         */
 		if (inst != nullptr) {
 			inst->configure_stream_threadsafe(stream_name, rate);
-
 		} else {
-
 			// If the link is not running we should complain, but not fall over
 			// because this is so easy to get wrong and not fatal. Warning is sufficient.
 			errx(0, "mavlink for device %s is not running", device_name);
