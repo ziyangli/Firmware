@@ -209,26 +209,26 @@ private:
 	int		_accel_sub;			/**< raw accel0 data subscription */
 	int		_mag_sub;			/**< raw mag0 data subscription */
 	int		_gyro1_sub;			/**< raw gyro1 data subscription */
-	int		_accel1_sub;			/**< raw accel1 data subscription */
+	int		_accel1_sub;        /**< raw accel1 data subscription */
 	int		_mag1_sub;			/**< raw mag1 data subscription */
 	int		_gyro2_sub;			/**< raw gyro2 data subscription */
-	int		_accel2_sub;			/**< raw accel2 data subscription */
+	int		_accel2_sub;        /**< raw accel2 data subscription */
 	int		_mag2_sub;			/**< raw mag2 data subscription */
-	int 		_rc_sub;			/**< raw rc channels data subscription */
+	int 	_rc_sub;			/**< raw rc channels data subscription */
 	int		_baro_sub;			/**< raw baro data subscription */
-	int		_airspeed_sub;			/**< airspeed subscription */
-	int		_diff_pres_sub;			/**< raw differential pressure subscription */
-	int		_vcontrol_mode_sub;			/**< vehicle control mode subscription */
-	int 		_params_sub;			/**< notification of parameter updates */
-	int 		_manual_control_sub;			/**< notification of manual control updates */
+	int		_airspeed_sub;      /**< airspeed subscription */
+	int		_diff_pres_sub; /**< raw differential pressure subscription */
+	int		_vcontrol_mode_sub; /**< vehicle control mode subscription */
+	int		_params_sub;     /**< notification of parameter updates */
+	int		_manual_control_sub; /**< notification of manual control updates */
 
-	orb_advert_t	_sensor_pub;			/**< combined sensor data topic */
-	orb_advert_t	_manual_control_pub;		/**< manual control signal topic */
-	orb_advert_t	_actuator_group_3_pub;		/**< manual control as actuator topic */
-	orb_advert_t	_rc_pub;			/**< raw r/c control topic */
-	orb_advert_t	_battery_pub;			/**< battery status */
-	orb_advert_t	_airspeed_pub;			/**< airspeed */
-	orb_advert_t	_diff_pres_pub;			/**< differential_pressure */
+	orb_advert_t	_sensor_pub; /**< combined sensor data topic */
+	orb_advert_t	_manual_control_pub; /**< manual control signal topic */
+	orb_advert_t	_actuator_group_3_pub; /**< manual control as actuator topic */
+	orb_advert_t	_rc_pub;        /**< raw r/c control topic */
+	orb_advert_t	_battery_pub;   /**< battery status */
+	orb_advert_t	_airspeed_pub;  /**< airspeed */
+	orb_advert_t	_diff_pres_pub; /**< differential_pressure */
 
 	perf_counter_t	_loop_perf;			/**< loop performance counter */
 
@@ -309,7 +309,7 @@ private:
 
 		float baro_qnh;
 
-	}		_parameters;			/**< local copies of interesting parameters */
+	} _parameters; /**< local copies of interesting parameters */
 
 	struct {
 		param_t min[_rc_max_chan_count];
@@ -367,7 +367,7 @@ private:
 
 		param_t baro_qnh;
 
-	}		_parameter_handles;		/**< handles for interesting parameters */
+	} _parameter_handles;   /**< handles for interesting parameters */
 
 
 	/**
@@ -500,7 +500,7 @@ Sensors::Sensors() :
 	_params_sub(-1),
 	_manual_control_sub(-1),
 
-/* publications */
+    /* publications */
 	_sensor_pub(-1),
 	_manual_control_pub(-1),
 	_actuator_group_3_pub(-1),
