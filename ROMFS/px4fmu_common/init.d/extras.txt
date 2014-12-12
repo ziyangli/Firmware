@@ -3,17 +3,48 @@
 # USB MAVLink start
 #
 
-mavlink start -d /dev/ttyS6 -b 460800
+mavlink start -d /dev/ttyS6 -b 921600
 # Enable a number of interesting streams we want via Serial 4
 usleep 100000
+mavlink stream -d /dev/ttyS6 -s HIGHRES_IMU -r 300 # maximum about 250Hz
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s ATTITUDE -r 300 # maximum about 250Hz
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s MANUAL_CONTROL -r 200 # maximum about 50Hz?
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s GPS_RAW_INT -r 10
+usleep 100000
+mavlink stream -d /dev/ttyS6 -s SYS_STATUS -r 5
+usleep 100000
+## debug
 mavlink stream -d /dev/ttyS6 -s NAMED_VALUE_FLOAT -r 10
 usleep 100000
-mavlink stream -d /dev/ttyS6 -s ATTITUDE -r 300
+
+mavlink stream -d /dev/ttyS6 -s RC_CHANNELS_RAW -r 1 # maximum about 50Hz
 usleep 100000
-mavlink stream -d /dev/ttyS6 -s ATTITUDE_CONTROLS -r 30
+
+## block unnecessary streams
+mavlink stream -d /dev/ttyS6 -s COMMAND_LONG -r 1
 usleep 100000
-mavlink stream -d /dev/ttyS6 -s RC_CHANNELS_RAW -r 300
+
+mavlink stream -d /dev/ttyS6 -s GPS_GLOBAL_ORIGIN -r 1
 usleep 100000
+
+mavlink stream -d /dev/ttyS6 -s VFR_HUD -r 1
+usleep 100000
+
+mavlink stream -d /dev/ttyS6 -s GLOBAL_POSITION_INT -r 1
+usleep 100000
+
+mavlink stream -d /dev/ttyS6 -s LOCAL_POSITION_NED -r 1
+usleep 100000
+
+mavlink stream -d /dev/ttyS6 -s POSITION_TARGET_GLOBAL_INT -r 1
+usleep 100000
+
+mavlink stream -d /dev/ttyS6 -s ATTITUDE_TARGET -r 1
+usleep 100000
+
 
 # Exit shell to make it available to MAVLink
 exit
