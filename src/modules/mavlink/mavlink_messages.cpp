@@ -1677,27 +1677,28 @@ protected:
 		struct rc_input_values rc;
 
 		if (_rc_sub->update(&_rc_time, &rc)) {
-			const unsigned port_width = 8;
 
-			/* deprecated message (but still needed for compatibility!) */
-			for (unsigned i = 0; (i * port_width) < rc.channel_count; i++) {
-				/* channels are sent in MAVLink main loop at a fixed interval */
-				mavlink_rc_channels_raw_t msg;
+			// const unsigned port_width = 8;
 
-				msg.time_boot_ms = rc.timestamp_publication / 1000;
-				msg.port = i;
-				msg.chan1_raw = (rc.channel_count > (i * port_width) + 0) ? rc.values[(i * port_width) + 0] : UINT16_MAX;
-				msg.chan2_raw = (rc.channel_count > (i * port_width) + 1) ? rc.values[(i * port_width) + 1] : UINT16_MAX;
-				msg.chan3_raw = (rc.channel_count > (i * port_width) + 2) ? rc.values[(i * port_width) + 2] : UINT16_MAX;
-				msg.chan4_raw = (rc.channel_count > (i * port_width) + 3) ? rc.values[(i * port_width) + 3] : UINT16_MAX;
-				msg.chan5_raw = (rc.channel_count > (i * port_width) + 4) ? rc.values[(i * port_width) + 4] : UINT16_MAX;
-				msg.chan6_raw = (rc.channel_count > (i * port_width) + 5) ? rc.values[(i * port_width) + 5] : UINT16_MAX;
-				msg.chan7_raw = (rc.channel_count > (i * port_width) + 6) ? rc.values[(i * port_width) + 6] : UINT16_MAX;
-				msg.chan8_raw = (rc.channel_count > (i * port_width) + 7) ? rc.values[(i * port_width) + 7] : UINT16_MAX;
-				msg.rssi = rc.rssi;
+			// deprecated message (but still needed for compatibility!)
+			// for (unsigned i = 0; (i * port_width) < rc.channel_count; i++) {
+			// 	channels are sent in MAVLink main loop at a fixed interval
+			// 	mavlink_rc_channels_raw_t msg;
 
-				_mavlink->send_message(MAVLINK_MSG_ID_RC_CHANNELS_RAW, &msg);
-			}
+			// 	msg.time_boot_ms = rc.timestamp_publication / 1000;
+			// 	msg.port = i;
+			// 	msg.chan1_raw = (rc.channel_count > (i * port_width) + 0) ? rc.values[(i * port_width) + 0] : UINT16_MAX;
+			// 	msg.chan2_raw = (rc.channel_count > (i * port_width) + 1) ? rc.values[(i * port_width) + 1] : UINT16_MAX;
+			// 	msg.chan3_raw = (rc.channel_count > (i * port_width) + 2) ? rc.values[(i * port_width) + 2] : UINT16_MAX;
+			// 	msg.chan4_raw = (rc.channel_count > (i * port_width) + 3) ? rc.values[(i * port_width) + 3] : UINT16_MAX;
+			// 	msg.chan5_raw = (rc.channel_count > (i * port_width) + 4) ? rc.values[(i * port_width) + 4] : UINT16_MAX;
+			// 	msg.chan6_raw = (rc.channel_count > (i * port_width) + 5) ? rc.values[(i * port_width) + 5] : UINT16_MAX;
+			// 	msg.chan7_raw = (rc.channel_count > (i * port_width) + 6) ? rc.values[(i * port_width) + 6] : UINT16_MAX;
+			// 	msg.chan8_raw = (rc.channel_count > (i * port_width) + 7) ? rc.values[(i * port_width) + 7] : UINT16_MAX;
+			// 	msg.rssi = rc.rssi;
+
+			// 	_mavlink->send_message(MAVLINK_MSG_ID_RC_CHANNELS_RAW, &msg);
+			// }
 
 			/* new message */
 			mavlink_rc_channels_t msg;
