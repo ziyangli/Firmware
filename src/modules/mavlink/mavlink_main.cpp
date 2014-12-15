@@ -1445,7 +1445,6 @@ Mavlink::task_main(int argc, char *argv[])
 
 	/* set main loop delay depending on data rate to minimize CPU overhead */
     if (!strcmp(_device_name, "/dev/ttyS6")) {
-        // _main_loop_delay = 1000000 / _datarate;
         _main_loop_delay = 1000000 / _datarate;
     }
     else {
