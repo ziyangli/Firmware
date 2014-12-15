@@ -74,7 +74,7 @@ MavlinkStream::update(const hrt_abstime t)
 	unsigned int interval = _interval;
 
 	if (!const_rate()) {
-		interval /= _mavlink->get_rate_mult();
+        interval /= _mavlink->get_rate_mult();
 	}
 
 	if (dt > 0 && dt >= interval) {
