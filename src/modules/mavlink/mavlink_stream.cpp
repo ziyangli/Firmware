@@ -70,7 +70,12 @@ MavlinkStream::set_interval(const unsigned int interval)
 int
 MavlinkStream::update(const hrt_abstime t)
 {
-	uint64_t dt = t - _last_sent;
+
+    hrt_abstime sent_t = hrt_absolute_time();
+
+    // uint64_t dt = t - _last_sent;
+    uint64_t dt = sent_t - _last_sent;
+
 	unsigned int interval = _interval;
 
 	if (!const_rate()) {
@@ -79,12 +84,16 @@ MavlinkStream::update(const hrt_abstime t)
 
 	if (dt > 0 && dt >= interval) {
 		/* interval expired, send message */
-		send(t);
-		if (const_rate()) {
-			_last_sent = (t / _interval) * _interval;
 
+		// send(t);
+        send(sent_t);
+
+		if (const_rate()) {
+			// _last_sent = (t / _interval) * _interval;
+            _last_sent = ( sent_t / _interval ) * _interval;
 		} else {
-			_last_sent = t;
+			// _last_sent = t;
+            _last_sent = sent_t;
 		}
 
 		return 0;
