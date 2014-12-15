@@ -95,11 +95,15 @@ static const int ERROR = -1;
 
 #define TX_BUFFER_GAP MAVLINK_MAX_PACKET_LEN
 
+// gloabl and static
+// whenever a new instance is created
+// it appends to this
 static Mavlink *_mavlink_instances = nullptr;
 
 /* TODO: if this is a class member it crashes */
 static struct file_operations fops;
 
+// load tables
 static const uint8_t mavlink_message_lengths[256] = MAVLINK_MESSAGE_LENGTHS;
 static const uint8_t mavlink_message_crcs[256] = MAVLINK_MESSAGE_CRCS;
 
@@ -176,11 +180,14 @@ Mavlink::Mavlink() :
 	_loop_perf(perf_alloc(PC_ELAPSED, "mavlink_el")),
 	_txerr_perf(perf_alloc(PC_COUNT, "mavlink_txe"))
 {
+
+    // global and static 'fops'
 	fops.ioctl = (int (*)(file *, int, long unsigned int))&mavlink_dev_ioctl;
 
 	_instance_id = Mavlink::instance_count();
 
 	/* set channel according to instance id */
+    // that is how channel is used!!!
 	switch (_instance_id) {
 	case 0:
 		_channel = MAVLINK_COMM_0;
@@ -249,6 +256,7 @@ Mavlink::~Mavlink()
 		} while (_task_running);
 	}
 
+    // clear pointers manually
 	LL_DELETE(_mavlink_instances, this);
 }
 
@@ -468,6 +476,7 @@ Mavlink::mavlink_dev_ioctl(struct file *filep, int cmd, unsigned long arg)
 			LL_FOREACH(_mavlink_instances, inst) {
 				if (!inst->_task_should_exit) {
 					mavlink_logbuffer_write(&inst->_logbuffer, &msg);
+                    // why this?
 					inst->_total_counter++;
 				}
 			}
@@ -496,7 +505,6 @@ void Mavlink::mavlink_update_system(void)
 
 	int32_t component_id;
 	param_get(_param_component_id, &component_id);
-
 
 	/* only allow system ID and component ID updates
 	 * after reboot - not during operation */
@@ -812,6 +820,8 @@ Mavlink::send_message(const uint8_t msgid, const void *msg)
 	pthread_mutex_unlock(&_send_mutex);
 }
 
+// not for error
+// just as a relay
 void
 Mavlink::resend_message(mavlink_message_t *msg)
 {
@@ -934,21 +944,23 @@ Mavlink::interval_from_rate(float rate)
 int
 Mavlink::configure_stream(const char *stream_name, const float rate)
 {
+
 	/* calculate interval in us, 0 means disabled stream */
 	unsigned int interval = interval_from_rate(rate);
 
-	/* search if stream exists */
+	/* configure if stream exists */
 	MavlinkStream *stream;
 	LL_FOREACH(_streams, stream) {
 		if (strcmp(stream_name, stream->get_name()) == 0) {
+            warnx("%s interval: %u.", stream->get_name(), interval);
 			if (interval > 0) {
 				/* set new interval */
 				stream->set_interval(interval);
 			} else {
 				/* delete stream */
-				LL_DELETE(_streams, stream);
-				delete stream;
-				warnx("deleted stream %s", stream->get_name());
+                LL_DELETE(_streams, stream);
+                delete stream;
+                warnx("deleted stream %s", stream_name);
 			}
 
 			return OK;
@@ -957,9 +969,11 @@ Mavlink::configure_stream(const char *stream_name, const float rate)
 
 	if (interval == 0) {
 		/* stream was not active and is requested to be disabled, do nothing */
+        // warnx("stream %s not found", stream_name);
 		return OK;
 	}
 
+    /* stream was not active and is requested to be enabled
 	/* search for stream with specified name in supported streams list */
 	for (unsigned int i = 0; streams_list[i] != nullptr; i++) {
 
@@ -974,7 +988,7 @@ Mavlink::configure_stream(const char *stream_name, const float rate)
 	}
 
 	/* if we reach here, the stream list does not contain the stream */
-	warnx("stream %s not found", stream_name);
+	warnx("stream %s not implemented", stream_name);
 
 	return ERROR;
 }
@@ -1023,14 +1037,15 @@ Mavlink::configure_stream_threadsafe(const char *stream_name, const float rate)
 
         // why is this thread safe?
 
-		/* set subscription task */
-		_subscribe_to_stream_rate = rate;
+        /* set subscription task */
+        _subscribe_to_stream_rate = rate;
 		_subscribe_to_stream = s;
 
 		/* wait for subscription */
 		do {
 			usleep(MAIN_LOOP_DELAY / 2);
 		} while (_subscribe_to_stream != nullptr);
+
 	}
 }
 
@@ -1186,7 +1201,11 @@ Mavlink::update_rate_mult()
 	}
 
 	/* don't scale up rates, only scale down if needed */
-	_rate_mult = fminf(1.0f, ((float)_datarate - const_rate) / rate);
+    _rate_mult = 1.0f;
+    if (strcmp(_device_name, "/dev/ttyS6")) {
+        _rate_mult = fminf(1.0f, ((float)_datarate - const_rate) / rate);
+    }
+
 }
 
 int
@@ -1425,7 +1444,14 @@ Mavlink::task_main(int argc, char *argv[])
 	}
 
 	/* set main loop delay depending on data rate to minimize CPU overhead */
-	_main_loop_delay = MAIN_LOOP_DELAY * 1000 / _datarate;
+    if (!strcmp(_device_name, "/dev/ttyS6")) {
+        // _main_loop_delay = 1000000 / _datarate;
+        _main_loop_delay = 1000000 / _datarate;
+    }
+    else {
+        _main_loop_delay = MAIN_LOOP_DELAY * 1000 / _datarate;
+    }
+    warnx("loop delay set to %uus.", _main_loop_delay);
 
 	/* now the instance is fully initialized and we can bump the instance count */
 	LL_APPEND(_mavlink_instances, this);
@@ -1456,7 +1482,6 @@ Mavlink::task_main(int argc, char *argv[])
 				if (_subscribe_to_stream_rate > 0.0f) {
 					warnx("stream %s on device %s enabled with rate %.1f Hz", _subscribe_to_stream, _device_name,
 					      (double)_subscribe_to_stream_rate);
-
 				} else {
 					warnx("stream %s on device %s disabled", _subscribe_to_stream, _device_name);
 				}
@@ -1756,6 +1781,7 @@ Mavlink::stream_command(int argc, char *argv[])
         */
 		Mavlink *inst = get_instance_for_device(device_name);
 
+        warnx("set %s stream for %u", stream_name, inst->_instance_id);
         /* now `inst` point to a static place
          */
 		if (inst != nullptr) {
@@ -1769,6 +1795,7 @@ Mavlink::stream_command(int argc, char *argv[])
 	} else {
 		errx(1, "usage: mavlink stream [-d device] -s stream -r rate");
 	}
+
 
 	return OK;
 }
