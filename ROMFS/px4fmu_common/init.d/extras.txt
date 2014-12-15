@@ -3,14 +3,14 @@
 # USB MAVLink start
 #
 
-mavlink start -d /dev/ttyS6 -b 921600
+mavlink start -d /dev/ttyS6 -b 921600 -r 400
 # Enable a number of interesting streams we want via Serial 4
 usleep 100000
-mavlink stream -d /dev/ttyS6 -s HIGHRES_IMU -r 300 # maximum about 250Hz
+mavlink stream -d /dev/ttyS6 -s HIGHRES_IMU -r 250 # maximum about 250Hz
 usleep 100000
-mavlink stream -d /dev/ttyS6 -s ATTITUDE -r 300 # maximum about 250Hz
+mavlink stream -d /dev/ttyS6 -s ATTITUDE -r 250 # maximum about 250Hz
 usleep 100000
-mavlink stream -d /dev/ttyS6 -s MANUAL_CONTROL -r 200 # maximum about 50Hz?
+mavlink stream -d /dev/ttyS6 -s MANUAL_CONTROL -r 60 # maximum about 50Hz?
 usleep 100000
 mavlink stream -d /dev/ttyS6 -s GPS_RAW_INT -r 10
 usleep 100000
@@ -20,30 +20,30 @@ usleep 100000
 mavlink stream -d /dev/ttyS6 -s NAMED_VALUE_FLOAT -r 10
 usleep 100000
 
-mavlink stream -d /dev/ttyS6 -s RC_CHANNELS_RAW -r 1 # maximum about 50Hz
-usleep 100000
+# mavlink stream -d /dev/ttyS6 -s RC_CHANNELS_RAW -r 0 # maximum about 50Hz
+# usleep 100000
 
-## block unnecessary streams
-mavlink stream -d /dev/ttyS6 -s COMMAND_LONG -r 1
-usleep 100000
+# ## block unnecessary streams
+# mavlink stream -d /dev/ttyS6 -s COMMAND_LONG -r 0
+# usleep 100000
 
-mavlink stream -d /dev/ttyS6 -s GPS_GLOBAL_ORIGIN -r 1
-usleep 100000
+# mavlink stream -d /dev/ttyS6 -s GPS_GLOBAL_ORIGIN -r 0
+# usleep 100000
 
-mavlink stream -d /dev/ttyS6 -s VFR_HUD -r 1
-usleep 100000
+# mavlink stream -d /dev/ttyS6 -s VFR_HUD -r 0
+# usleep 100000
 
-mavlink stream -d /dev/ttyS6 -s GLOBAL_POSITION_INT -r 1
-usleep 100000
+# mavlink stream -d /dev/ttyS6 -s GLOBAL_POSITION_INT -r 0
+# usleep 100000
 
-mavlink stream -d /dev/ttyS6 -s LOCAL_POSITION_NED -r 1
-usleep 100000
+# mavlink stream -d /dev/ttyS6 -s LOCAL_POSITION_NED -r 0
+# usleep 100000
 
-mavlink stream -d /dev/ttyS6 -s POSITION_TARGET_GLOBAL_INT -r 1
-usleep 100000
+# mavlink stream -d /dev/ttyS6 -s POSITION_TARGET_GLOBAL_INT -r 0
+# usleep 100000
 
-mavlink stream -d /dev/ttyS6 -s ATTITUDE_TARGET -r 1
-usleep 100000
+# mavlink stream -d /dev/ttyS6 -s ATTITUDE_TARGET -r 0
+# usleep 100000
 
 
 # Exit shell to make it available to MAVLink
