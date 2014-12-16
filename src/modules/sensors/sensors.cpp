@@ -220,7 +220,6 @@ private:
 	int		_diff_pres_sub; /**< raw differential pressure subscription */
 	int		_vcontrol_mode_sub; /**< vehicle control mode subscription */
 	int		_params_sub;     /**< notification of parameter updates */
-	int		_manual_control_sub; /**< notification of manual control updates */
 
 	orb_advert_t	_sensor_pub; /**< combined sensor data topic */
 	orb_advert_t	_manual_control_pub; /**< manual control signal topic */
@@ -498,7 +497,6 @@ Sensors::Sensors() :
 	_baro_sub(-1),
 	_vcontrol_mode_sub(-1),
 	_params_sub(-1),
-	_manual_control_sub(-1),
 
     /* publications */
 	_sensor_pub(-1),
@@ -1755,7 +1753,6 @@ Sensors::task_main()
 	_diff_pres_sub = orb_subscribe(ORB_ID(differential_pressure));
 	_vcontrol_mode_sub = orb_subscribe(ORB_ID(vehicle_control_mode));
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
-	_manual_control_sub = orb_subscribe(ORB_ID(manual_control_setpoint));
 
 	/* rate limit vehicle status updates to 5Hz */
 	orb_set_interval(_vcontrol_mode_sub, 200);
