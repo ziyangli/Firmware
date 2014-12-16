@@ -1821,7 +1821,6 @@ protected:
 
 	void send(const hrt_abstime t)
 	{
-      // not used at all?
       struct manual_control_setpoint_s manual;
 
       if (_manual_sub->update(&_manual_time, &manual)) {
@@ -1832,7 +1831,20 @@ protected:
 			msg.y = manual.y * 1000;
 			msg.z = manual.z * 1000;
 			msg.r = manual.r * 1000;
+
+            // push mode info. into buttons
 			msg.buttons = 0;
+            msg.buttons += manual.offboard_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.acro_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.loiter_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.posctl_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.return_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.mode_switch;
 
 			_mavlink->send_message(MAVLINK_MSG_ID_MANUAL_CONTROL, &msg);
 		}
