@@ -1439,7 +1439,7 @@ Mavlink::task_main(int argc, char *argv[])
 		configure_stream("VFR_HUD", 10.0f);
 		break;
 
-	default:
+	default: // custom mode, do not configure streams
 		break;
 	}
 
