@@ -100,7 +100,7 @@ MavlinkFTP::handle_message(Mavlink* mavlink, mavlink_message_t *msg)
 
 	if (msg->msgid == MAVLINK_MSG_ID_FILE_TRANSFER_PROTOCOL) {
 		mavlink_msg_file_transfer_protocol_decode(msg, &req->message);
-
+		
 #ifdef MAVLINK_FTP_UNIT_TEST
 		if (!_utRcvMsgFunc) {
 			warnx("Incorrectly written unit test\n");
@@ -116,10 +116,10 @@ MavlinkFTP::handle_message(Mavlink* mavlink, mavlink_message_t *msg)
 		req->serverComponentId = mavlink->get_component_id();
 		req->serverChannel = mavlink->get_channel();
 #endif
-
+		
 		// This is the system id we want to target when sending
 		req->targetSystemId = msg->sysid;
-
+			
 		if (req->message.target_system == req->serverSystemId) {
 			req->mavlink = mavlink;
 #ifdef MAVLINK_FTP_UNIT_TEST

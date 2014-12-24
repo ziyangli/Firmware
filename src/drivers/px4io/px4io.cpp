@@ -1630,14 +1630,19 @@ PX4IO::io_publish_raw_rc()
 	/* sort out the source of the values */
 	if (_status & PX4IO_P_STATUS_FLAGS_RC_PPM) {
 		rc_val.input_source = RC_INPUT_SOURCE_PX4IO_PPM;
+
 	} else if (_status & PX4IO_P_STATUS_FLAGS_RC_DSM) {
 		rc_val.input_source = RC_INPUT_SOURCE_PX4IO_SPEKTRUM;
+
 	} else if (_status & PX4IO_P_STATUS_FLAGS_RC_SBUS) {
 		rc_val.input_source = RC_INPUT_SOURCE_PX4IO_SBUS;
+
 	} else if (_status & PX4IO_P_STATUS_FLAGS_RC_ST24) {
 		rc_val.input_source = RC_INPUT_SOURCE_PX4IO_ST24;
+
 	} else {
 		rc_val.input_source = RC_INPUT_SOURCE_UNKNOWN;
+
 		/* only keep publishing RC input if we ever got a valid input */
 		if (_rc_last_valid == 0) {
 			/* we have never seen valid RC signals, abort */

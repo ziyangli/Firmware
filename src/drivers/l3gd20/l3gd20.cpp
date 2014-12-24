@@ -207,7 +207,7 @@ private:
 
 	struct hrt_call		_call;
 	unsigned		_call_interval;
-
+	
 	RingBuffer		*_reports;
 
 	struct gyro_scale	_gyro_scale;

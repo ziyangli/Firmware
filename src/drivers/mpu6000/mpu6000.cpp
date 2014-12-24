@@ -524,7 +524,7 @@ MPU6000::init()
 		case CLASS_DEVICE_PRIMARY:
 			_accel_orb_id = ORB_ID(sensor_accel0);
 			break;
-
+		
 		case CLASS_DEVICE_SECONDARY:
 			_accel_orb_id = ORB_ID(sensor_accel1);
 			break;
