@@ -187,7 +187,6 @@ Mavlink::Mavlink() :
 	_instance_id = Mavlink::instance_count();
 
 	/* set channel according to instance id */
-    // that is how channel is used!!!
 	switch (_instance_id) {
 	case 0:
 		_channel = MAVLINK_COMM_0;
@@ -1034,8 +1033,6 @@ Mavlink::configure_stream_threadsafe(const char *stream_name, const float rate)
 		unsigned n = strlen(stream_name) + 1;
 		char *s = new char[n];
 		strcpy(s, stream_name);
-
-        // why is this thread safe?
 
         /* set subscription task */
         _subscribe_to_stream_rate = rate;

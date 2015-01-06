@@ -42,12 +42,10 @@
 #include <systemlib/param/param.h>
 
 struct attitude_estimator_ekf_params {
-
-    float r[3]; /* measurement noise [\omega, acc, mag] */
-	float q[4]; /* process noise [\omega, \dot{\omega}, acc, mag] */
+	float r[3];
+	float q[4];
 	float moment_inertia_J[9];
 	int32_t use_moment_inertia;
-
 	float roll_off;
 	float pitch_off;
 	float yaw_off;

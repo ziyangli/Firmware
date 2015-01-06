@@ -169,7 +169,7 @@ public:
 	 */
 	void		resend_message(mavlink_message_t *msg);
 
-	void		handle_message(const mavlink_message_t *msg);
+	void			handle_message(const mavlink_message_t *msg);
 
 	MavlinkOrbSubscription *add_orb_subscription(const orb_id_t topic);
 
@@ -274,17 +274,17 @@ private:
 	int			_instance_id;
 
 	int			_mavlink_fd;
-	bool		_task_running;
+	bool			_task_running;
 
 	/* states */
 	bool			_hil_enabled;		/**< Hardware In the Loop mode */
 	bool			_use_hil_gps;		/**< Accept GPS HIL messages (for example from an external motion capturing system to fake indoor gps) */
-	bool			_forward_externalsp; /**< Forward external setpoint messages to controllers directly if in offboard mode */
-	bool			_is_usb_uart;        /**< Port is USB */
-	bool        	_wait_to_transmit; /**< Wait to transmit until received messages. */
-	bool       		_received_messages;	/**< Whether we've received valid mavlink messages. */
+	bool			_forward_externalsp;	/**< Forward external setpoint messages to controllers directly if in offboard mode */
+	bool			_is_usb_uart;		/**< Port is USB */
+	bool        		_wait_to_transmit;  	/**< Wait to transmit until received messages. */
+	bool        		_received_messages;	/**< Whether we've received valid mavlink messages. */
 
-	unsigned		_main_loop_delay; /**< mainloop delay, depends on data rate */
+	unsigned		_main_loop_delay;	/**< mainloop delay, depends on data rate */
 
 	MavlinkOrbSubscription	*_subscriptions;
 	MavlinkStream		*_streams;
@@ -301,14 +301,14 @@ private:
 
 	pthread_t		_receive_thread;
 
-	bool		_verbose;
-	bool		_forwarding_on;
-	bool		_passing_on;
-	bool		_ftp_on;
+	bool			_verbose;
+	bool			_forwarding_on;
+	bool			_passing_on;
+	bool			_ftp_on;
 	int			_uart_fd;
 	int			_baudrate;
-	int			_datarate; ///< data rate for normal streams (attitude, position, etc.)
-	int			_datarate_events; ///< data rate for params, waypoints, text messages
+	int			_datarate;		///< data rate for normal streams (attitude, position, etc.)
+	int			_datarate_events;	///< data rate for params, waypoints, text messages
 	float		_rate_mult;
 
 	/**
