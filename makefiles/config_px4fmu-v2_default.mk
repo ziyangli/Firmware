@@ -40,6 +40,7 @@ MODULES		+= drivers/mkblctrl
 # MODULES		+= drivers/sf0x
 # MODULES		+= drivers/trone ## teraOne range finder
 
+# MODULES		+= drivers/hott
 # MODULES		+= drivers/hott/hott_telemetry
 # MODULES		+= drivers/hott/hott_sensors
 # MODULES		+= drivers/frsky_telemetry
