@@ -746,15 +746,12 @@ MavlinkReceiver::handle_message_set_attitude_target(mavlink_message_t *msg)
 
 	/* Only accept messages which are intended for this system */
 	if ((mavlink_system.sysid == set_attitude_target.target_system ||
-         set_attitude_target.target_system == 0) &&
-        (mavlink_system.compid == set_attitude_target.target_component ||
-         set_attitude_target.target_component == 0))
-      {
-		for (int i = 0; i < 4; i++)
-          {
-            offboard_control_sp.attitude[i] = set_attitude_target.q[i];
-          }
-
+				set_attitude_target.target_system == 0) &&
+			(mavlink_system.compid == set_attitude_target.target_component ||
+			 set_attitude_target.target_component == 0)) {
+		for (int i = 0; i < 4; i++) {
+			offboard_control_sp.attitude[i] = set_attitude_target.q[i];
+		}
 		offboard_control_sp.attitude_rate[0] = set_attitude_target.body_roll_rate;
 		offboard_control_sp.attitude_rate[1] = set_attitude_target.body_pitch_rate;
 		offboard_control_sp.attitude_rate[2] = set_attitude_target.body_yaw_rate;
@@ -771,17 +768,16 @@ MavlinkReceiver::handle_message_set_attitude_target(mavlink_message_t *msg)
 		offboard_control_sp.ignore &= ~(1 << OFB_IGN_BIT_ATT);
 		offboard_control_sp.ignore |= ((set_attitude_target.type_mask & (1 << 7)) << OFB_IGN_BIT_ATT);
 
-		offboard_control_sp.timestamp = hrt_absolute_time();
-		offboard_control_sp.mode = OFFBOARD_CONTROL_MODE_DIRECT_ATTITUDE; //XXX handle rate control mode
 
-		if (_offboard_control_sp_pub < 0)
-          {
+		offboard_control_sp.timestamp = hrt_absolute_time();
+		offboard_control_sp.mode =OFFBOARD_CONTROL_MODE_DIRECT_ATTITUDE; //XXX handle rate control mode
+
+		if (_offboard_control_sp_pub < 0) {
 			_offboard_control_sp_pub = orb_advertise(ORB_ID(offboard_control_setpoint), &offboard_control_sp);
-          }
-        else
-          {
+
+		} else {
 			orb_publish(ORB_ID(offboard_control_setpoint), _offboard_control_sp_pub, &offboard_control_sp);
-          }
+		}
 
 		/* If we are in offboard control mode and offboard control loop through is enabled
 		 * also publish the setpoint topic which is read by the controller */
