@@ -385,7 +385,7 @@ do {                                                                            
     LL_FOREACH(head,out) {                                                                     \
       if ((out)->field == (val)) break;                                                        \
     }                                                                                          \
-} while(0)
+} while(0) 
 
 #define LL_SEARCH(head,out,elt,cmp)                                                            \
 do {                                                                                           \

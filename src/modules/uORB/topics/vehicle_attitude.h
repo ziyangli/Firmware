@@ -64,21 +64,21 @@ struct vehicle_attitude_s {
 
 	/** @warning roll, pitch and yaw have always to be valid, the rotation matrix and quaternion are optional */
 
-	float roll;           /**< Roll angle (rad, Tait-Bryan, NED)				*/
-	float pitch;         /**< Pitch angle (rad, Tait-Bryan, NED)				*/
-	float yaw;             /**< Yaw angle (rad, Tait-Bryan, NED)				*/
-	float rollspeed;    /**< Roll angular speed (rad/s, Tait-Bryan, NED)		*/
-	float pitchspeed;  /**< Pitch angular speed (rad/s, Tait-Bryan, NED)		*/
-	float yawspeed;  /**< Yaw angular speed (rad/s, Tait-Bryan, NED)			*/
-	float rollacc; /**< Roll angular accelration (rad/s, Tait-Bryan, NED)		*/
-	float pitchacc; /**< Pitch angular acceleration (rad/s, Tait-Bryan, NED)	*/
-	float yawacc; /**< Yaw angular acceleration (rad/s, Tait-Bryan, NED)		*/
-	float rate_offsets[3]; /**< Offsets of the body angular rates from zero		*/
-	float R[3][3]; /**< Rotation matrix body to world, (Tait-Bryan, NED)		*/
-	float q[4];                    /**< Quaternion (NED)						*/
-	float g_comp[3];         /**< Compensated gravity vector					*/
-	bool R_valid;                 /**< Rotation matrix valid					*/
-	bool q_valid;                  /**< Quaternion valid						*/
+	float roll;		/**< Roll angle (rad, Tait-Bryan, NED)				*/
+	float pitch;		/**< Pitch angle (rad, Tait-Bryan, NED)				*/
+	float yaw;		/**< Yaw angle (rad, Tait-Bryan, NED)				*/
+	float rollspeed;	/**< Roll angular speed (rad/s, Tait-Bryan, NED)		*/
+	float pitchspeed;	/**< Pitch angular speed (rad/s, Tait-Bryan, NED)		*/
+	float yawspeed;		/**< Yaw angular speed (rad/s, Tait-Bryan, NED)			*/
+	float rollacc;		/**< Roll angular accelration (rad/s, Tait-Bryan, NED)		*/
+	float pitchacc;		/**< Pitch angular acceleration (rad/s, Tait-Bryan, NED)	*/
+	float yawacc;		/**< Yaw angular acceleration (rad/s, Tait-Bryan, NED)		*/
+	float rate_offsets[3];	/**< Offsets of the body angular rates from zero		*/
+	float R[3][3];		/**< Rotation matrix body to world, (Tait-Bryan, NED)		*/
+	float q[4];		/**< Quaternion (NED)						*/
+	float g_comp[3];	/**< Compensated gravity vector					*/
+	bool R_valid;		/**< Rotation matrix valid					*/
+	bool q_valid;		/**< Quaternion valid						*/
 
 	// secondary attitude, use for VTOL
 	float roll_sec;		/**< Roll angle (rad, Tait-Bryan, NED)				*/

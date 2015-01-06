@@ -219,12 +219,12 @@ private:
 	int		_accel_sub;			/**< raw accel0 data subscription */
 	int		_mag_sub;			/**< raw mag0 data subscription */
 	int		_gyro1_sub;			/**< raw gyro1 data subscription */
-	int		_accel1_sub;        /**< raw accel1 data subscription */
+	int		_accel1_sub;			/**< raw accel1 data subscription */
 	int		_mag1_sub;			/**< raw mag1 data subscription */
 	int		_gyro2_sub;			/**< raw gyro2 data subscription */
-	int		_accel2_sub;        /**< raw accel2 data subscription */
+	int		_accel2_sub;			/**< raw accel2 data subscription */
 	int		_mag2_sub;			/**< raw mag2 data subscription */
-	int 	_rc_sub;			/**< raw rc channels data subscription */
+	int 		_rc_sub;			/**< raw rc channels data subscription */
 	int		_baro_sub;			/**< raw baro data subscription */
 	int		_baro1_sub;			/**< raw baro data subscription */
 	int		_airspeed_sub;			/**< airspeed subscription */
@@ -325,7 +325,7 @@ private:
 
 		float baro_qnh;
 
-	} _parameters; /**< local copies of interesting parameters */
+	}		_parameters;			/**< local copies of interesting parameters */
 
 	struct {
 		param_t min[_rc_max_chan_count];
@@ -390,7 +390,7 @@ private:
 
 		param_t baro_qnh;
 
-	} _parameter_handles;   /**< handles for interesting parameters */
+	}		_parameter_handles;		/**< handles for interesting parameters */
 
 
 	/**
@@ -530,7 +530,7 @@ Sensors::Sensors() :
 	_rc_parameter_map_sub(-1),
 	_manual_control_sub(-1),
 
-    /* publications */
+/* publications */
 	_sensor_pub(-1),
 	_manual_control_pub(-1),
 	_actuator_group_3_pub(-1),
