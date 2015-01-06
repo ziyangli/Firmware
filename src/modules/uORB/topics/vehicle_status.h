@@ -175,11 +175,11 @@ struct vehicle_status_s {
 	uint16_t counter;   /**< incremented by the writing thread everytime new data is stored */
 	uint64_t timestamp; /**< in microseconds since system start, is set whenever the writing thread stores new data */
 
-    main_state_t main_state;      /**< main state machine */
-    navigation_state_t nav_state; /**< set navigation state machine to specified value */
-    arming_state_t arming_state;  /**< current arming state */
-    hil_state_t hil_state;        /**< current hil state */
-	bool failsafe;         /**< true if system is in failsafe state */
+	main_state_t main_state;		    	/**< main state machine */
+	navigation_state_t nav_state;		/**< set navigation state machine to specified value */
+	arming_state_t arming_state;			/**< current arming state */
+	hil_state_t hil_state;				/**< current hil state */
+	bool failsafe;					/**< true if system is in failsafe state */
 
 	int32_t system_type;				/**< system type, inspired by MAVLink's VEHICLE_TYPE enum */
 	int32_t	system_id;				/**< system id, inspired by MAVLink's system ID field */
