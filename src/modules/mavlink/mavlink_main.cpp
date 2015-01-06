@@ -974,7 +974,7 @@ Mavlink::configure_stream(const char *stream_name, const float rate)
 	}
 
     /* stream was not active and is requested to be enabled
-	/* search for stream with specified name in supported streams list */
+       search for stream with specified name in supported streams list */
 	for (unsigned int i = 0; streams_list[i] != nullptr; i++) {
 
 		if (strcmp(stream_name, streams_list[i]->get_name()) == 0) {
