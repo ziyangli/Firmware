@@ -182,6 +182,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
     /* state vector x has the following entries [wx,wy,wz||wax,way,waz||ax,ay,az||mx,my,mz]' */
 	float x_aposteriori_k[12];
 
+    // init: diagonal matrix with big values
 	float P_aposteriori_k[144] = {100.f,   0,     0,     0,     0,     0,     0,     0,     0,     0,      0,      0,
                                     0,   100.f,   0,     0,     0,     0,     0,     0,     0,     0,      0,      0,
                                     0,     0,   100.f,   0,     0,     0,     0,     0,     0,     0,      0,      0,
@@ -194,7 +195,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
                                     0,     0,     0,     0,     0,     0,     0,     0,    0.0f, 100.0f,   0,      0,
                                     0,     0,     0,     0,     0,     0,     0,     0,    0.0f,   0,    100.0f,   0,
                                     0,     0,     0,     0,     0,     0,     0,     0,    0.0f,   0,      0,    100.0f,
-    };                     /* init: diagonal matrix with big values */
+    };
 
 	float x_aposteriori[12];
 	float P_aposteriori[144];
@@ -202,10 +203,11 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
     /* output euler angles */
 	float euler[3] = {0.0f, 0.0f, 0.0f};
 
-	float Rot_matrix[9] = {1.f, 0.f, 0.f,
-                           0.f, 1.f, 0.f,
-                           0.f, 0.f, 1.f
-    };                          /* init: identity matrix */
+    // initialized: identity matrix
+	float Rot_matrix[9] = {1.0f, 0.0f, 0.0f,
+                           0.0f, 1.0f, 0.0f,
+                           0.0f, 0.0f, 1.0f
+    };
 
 	float debugOutput[4] = { 0.0f };
 	int overloadcounter = 19; // why 19?
@@ -229,7 +231,7 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 	struct vehicle_control_mode_s control_mode;
 	memset(&control_mode, 0, sizeof(control_mode));
 
-	uint64_t last_data = 0;     // for sensor time
+	uint64_t last_data = 0;        // for sensor time
 	uint64_t last_measurement = 0; // same as last_data?
 	uint64_t last_vel_t = 0;       // for acc compensation
 
@@ -274,13 +276,13 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 
 	thread_running = true;
 
-	/* advertise debug value */
-	struct debug_key_value_s dbg;
-   	memset(&dbg, 0, sizeof(dbg));
-    char debug_name[10] = "mc_debug";
-    memcpy(dbg.key, debug_name, sizeof(debug_name));
-    dbg.value = 0.0f;
-	orb_advert_t pub_dbg = orb_advertise(ORB_ID(debug_key_value), &dbg);
+	// advertise debug value
+	// struct debug_key_value_s dbg;
+   	// memset(&dbg, 0, sizeof(dbg));
+    // char debug_name[10] = "mc_debug";
+    // memcpy(dbg.key, debug_name, sizeof(debug_name));
+    // dbg.value = 0.0f;
+	// orb_advert_t pub_dbg = orb_advertise(ORB_ID(debug_key_value), &dbg);
     // dbg.value = z_k[7];
     // orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 
@@ -659,8 +661,8 @@ int attitude_estimator_ekf_thread_main(int argc, char *argv[])
 						warnx("NaN in roll/pitch/yaw estimate!");
 					}
 
-                    dbg.value = 1234;
-                    orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
+                    // dbg.value = 1234;
+                    // orb_publish(ORB_ID(debug_key_value), pub_dbg, &dbg);
 
 					perf_end(ekf_loop_perf);
 				}
