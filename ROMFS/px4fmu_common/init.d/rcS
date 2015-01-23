@@ -12,7 +12,6 @@ set MODE autostart
 
 set FRC /fs/microsd/etc/rc.txt
 set FCONFIG /fs/microsd/etc/config.txt
-set FEXTRAS /etc/init.d/extras.txt
 
 set TUNE_ERR ML<<CP4CP4CP4CP4CP4
 
@@ -629,7 +628,8 @@ then
 	fi
 
 	# Start any custom addons
-	set FEXTRAS /fs/microsd/etc/extras.txt
+    set FEXTRAS /etc/init.d/extras.txt
+    # set FEXTRAS /fs/microsd/etc/extras.txt
 	if [ -f $FEXTRAS ]
 	then
 		echo "[i] Addons script: $FEXTRAS"
