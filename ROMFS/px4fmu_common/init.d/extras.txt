@@ -5,20 +5,14 @@
 
 mavlink start -d /dev/ttyS6 -b 921600 -r 600 -m custom
 # Enable a number of interesting streams we want via Serial 4
-usleep 100000
 mavlink stream -d /dev/ttyS6 -s HIGHRES_IMU -r 300 # maximum about 250Hz
-usleep 100000
 mavlink stream -d /dev/ttyS6 -s ATTITUDE -r 150 # maximum about 250Hz
-usleep 100000
 mavlink stream -d /dev/ttyS6 -s MANUAL_CONTROL -r 60 # maximum about 50Hz?
-usleep 100000
 mavlink stream -d /dev/ttyS6 -s GPS_RAW_INT -r 10
-usleep 100000
 mavlink stream -d /dev/ttyS6 -s SYS_STATUS -r 5
-usleep 100000
+## mavlink stream -d /dev/ttyS6 -s LOCAL_POSITION_NED -r 20
 ## debug
 mavlink stream -d /dev/ttyS6 -s NAMED_VALUE_FLOAT -r 10
-usleep 100000
 
 # mavlink stream -d /dev/ttyS6 -s RC_CHANNELS_RAW -r 0 # maximum about 50Hz
 # usleep 100000
@@ -31,7 +25,7 @@ usleep 100000
 # usleep 100000
 # mavlink stream -d /dev/ttyS6 -s GLOBAL_POSITION_INT -r 0
 # usleep 100000
-# mavlink stream -d /dev/ttyS6 -s LOCAL_POSITION_NED -r 0
+
 # usleep 100000
 # mavlink stream -d /dev/ttyS6 -s POSITION_TARGET_GLOBAL_INT -r 0
 # usleep 100000
