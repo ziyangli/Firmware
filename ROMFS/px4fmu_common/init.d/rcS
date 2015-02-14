@@ -62,7 +62,7 @@ then
 	# Load parameters
 	#
 	set PARAM_FILE /fs/microsd/params
-	if mtd start
+	if mtd start ## Driver for I2C EEPROMS
 	then
 		set PARAM_FILE /fs/mtd_params
 	fi
