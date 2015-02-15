@@ -740,18 +740,23 @@ MavlinkReceiver::handle_message_vision_position_estimate(mavlink_message_t *msg)
 void
 MavlinkReceiver::handle_message_set_attitude_target(mavlink_message_t *msg)
 {
+
+    // uint64_t timestamp = hrt_absolute_time();
+    // warnx("ctrl diff: %llu us", timestamp - _old_timestamp);
+    // _old_timestamp = timestamp;
+
 	mavlink_set_attitude_target_t set_attitude_target;
 	mavlink_msg_set_attitude_target_decode(msg, &set_attitude_target);
 
 	struct offboard_control_setpoint_s offboard_control_sp;
 	memset(&offboard_control_sp, 0, sizeof(offboard_control_sp)); //XXX breaks compatibility with multiple setpoints
 
-	/* Only accept messages which are intended for this system */
+    /* Only accept messages which are intended for this system */
 	if ((mavlink_system.sysid == set_attitude_target.target_system ||
 				set_attitude_target.target_system == 0) &&
 			(mavlink_system.compid == set_attitude_target.target_component ||
-			 set_attitude_target.target_component == 0)) {
-		for (int i = 0; i < 4; i++) {
+             set_attitude_target.target_component == 0)) {
+        for (int i = 0; i < 4; i++) {
 			offboard_control_sp.attitude[i] = set_attitude_target.q[i];
 		}
 		offboard_control_sp.attitude_rate[0] = set_attitude_target.body_roll_rate;
@@ -801,8 +806,10 @@ MavlinkReceiver::handle_message_set_attitude_target(mavlink_message_t *msg)
 							&att_sp.roll_body, &att_sp.pitch_body, &att_sp.yaw_body);
 					mavlink_quaternion_to_dcm(set_attitude_target.q, (float(*)[3])att_sp.R_body);
 					att_sp.R_valid = true;
-					att_sp.thrust = set_attitude_target.thrust;
-					memcpy(att_sp.q_d, set_attitude_target.q, sizeof(att_sp.q_d));
+                    att_sp.thrust = set_attitude_target.thrust;
+                    // float testFloat = 0.0002;
+                    // warnx("qw: %.5f , qx: %.5f, qy: %.5f, qz: %.5f, thrust: %.5f, test: %.5f", (double)set_attitude_target.q[0], (double)set_attitude_target.q[1], (double)set_attitude_target.q[2], (double)set_attitude_target.q[3], (double)att_sp.thrust, (double)testFloat);
+                    memcpy(att_sp.q_d, set_attitude_target.q, sizeof(att_sp.q_d));
 					att_sp.q_d_valid = true;
 					if (_att_sp_pub < 0) {
 						_att_sp_pub = orb_advertise(ORB_ID(vehicle_attitude_setpoint), &att_sp);
