@@ -977,12 +977,12 @@ MulticopterPositionControl::task_main()
 				reset_yaw_sp = true;
 		}
 
-		update_ref();
+        update_ref();
 
-		if (_control_mode.flag_control_altitude_enabled ||
+        if (_control_mode.flag_control_altitude_enabled ||
 		    _control_mode.flag_control_position_enabled ||
 		    _control_mode.flag_control_climb_rate_enabled ||
-		    _control_mode.flag_control_velocity_enabled) {
+            _control_mode.flag_control_velocity_enabled) {
 
 			_pos(0) = _local_pos.x;
 			_pos(1) = _local_pos.y;
@@ -997,13 +997,13 @@ MulticopterPositionControl::task_main()
 
 			/* select control source */
 			if (_control_mode.flag_control_manual_enabled) {
-				/* manual control */
-				control_manual(dt);
+                /* manual control */
+                control_manual(dt);
 				_mode_auto = false;
 
 			} else if (_control_mode.flag_control_offboard_enabled) {
-				/* offboard control */
-				control_offboard(dt);
+                /* offboard control */
+                control_offboard(dt);
 				_mode_auto = false;
 
 			} else {
@@ -1381,11 +1381,12 @@ MulticopterPositionControl::task_main()
 			_att_sp.timestamp = hrt_absolute_time();
 		}
 		/* publish attitude setpoint */
-		if (_att_sp_pub > 0) {
-			orb_publish(ORB_ID(vehicle_attitude_setpoint), _att_sp_pub, &_att_sp);
-
-		} else {
-			_att_sp_pub = orb_advertise(ORB_ID(vehicle_attitude_setpoint), &_att_sp);
+        if (_att_sp_pub > 0) {
+            if (! (_control_mode.flag_control_offboard_enabled && _control_mode.flag_control_attitude_enabled)) {
+                orb_publish(ORB_ID(vehicle_attitude_setpoint), _att_sp_pub, &_att_sp);
+            }
+        } else {
+            _att_sp_pub = orb_advertise(ORB_ID(vehicle_attitude_setpoint), &_att_sp);
 		}
 
 		/* reset altitude controller integral (hovering throttle) to manual throttle after manual throttle control */
