@@ -85,6 +85,9 @@
 #include <lib/mathlib/mathlib.h>
 #include <lib/geo/geo.h>
 
+#include <mavlink/mavlink_log.h>
+#include <fcntl.h>              // open
+
 /**
  * Multicopter attitude control app start / stop handling function
  *
@@ -119,7 +122,9 @@ public:
 private:
 
 	bool	_task_should_exit;		/**< if true, task_main() should exit */
-	int		_control_task;			/**< task handle */
+    int		_control_task;			/**< task handle */
+
+    int _mavlink_fd;
 
 	int		_v_att_sub;				/**< vehicle attitude subscription */
 	int		_v_att_sp_sub;			/**< vehicle attitude setpoint subscription */
@@ -277,7 +282,8 @@ MulticopterAttitudeControl	*g_control;
 MulticopterAttitudeControl::MulticopterAttitudeControl() :
 
 	_task_should_exit(false),
-	_control_task(-1),
+    _control_task(-1),
+    _mavlink_fd(-1),
 
 /* subscriptions */
 	_v_att_sub(-1),
@@ -547,9 +553,12 @@ MulticopterAttitudeControl::vehicle_status_poll()
 void
 MulticopterAttitudeControl::control_attitude(float dt)
 {
-	vehicle_attitude_setpoint_poll();
+    vehicle_attitude_setpoint_poll();
 
-	_thrust_sp = _v_att_sp.thrust;
+    // mavlink_log_info(_mavlink_fd, "[mac] r: %.2f, p: %.2f, y: %.2f, t: %.2f\n", (double)_v_att_sp.roll_body, (double)_v_att_sp.pitch_body, (double)_v_att_sp.yaw_body, (double)_v_att_sp.thrust);
+    // mavlink_log_info(_mavlink_fd, "[mac] r: %.2f, p: %.2f, y: %.2f", (double)_v_att.roll, (double)_v_att.pitch, (double)_v_att.yaw);
+
+    _thrust_sp = _v_att_sp.thrust;
 
 	/* construct attitude setpoint rotation matrix */
 	math::Matrix<3, 3> R_sp;
@@ -680,6 +689,7 @@ MulticopterAttitudeControl::task_main_trampoline(int argc, char *argv[])
 void
 MulticopterAttitudeControl::task_main()
 {
+    _mavlink_fd = open(MAVLINK_LOG_DEVICE, 0);
 
 	/*
 	 * do subscriptions
