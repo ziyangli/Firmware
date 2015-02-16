@@ -111,7 +111,6 @@ Navigator::Navigator() :
 	_pos_sp_triplet_pub(-1),
 	_mission_result_pub(-1),
 	_geofence_result_pub(-1),
-	_att_sp_pub(-1),
 	_vstatus{},
 	_control_mode{},
 	_global_pos{},
