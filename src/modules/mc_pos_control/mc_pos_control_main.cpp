@@ -137,7 +137,7 @@ private:
 	struct vehicle_attitude_s			_att;			/**< vehicle attitude */
 	struct vehicle_attitude_setpoint_s		_att_sp;		/**< vehicle attitude setpoint */
 	struct manual_control_setpoint_s		_manual;		/**< r/c channel data */
-	struct vehicle_control_mode_s			_control_mode;	/**< vehicle control mode */
+    struct vehicle_control_mode_s			_control_mode;	/**< vehicle control mode */
 	struct actuator_armed_s				_arming;		/**< actuator arming status */
 	struct vehicle_local_position_s			_local_pos;		/**< vehicle local position */
 	struct position_setpoint_triplet_s		_pos_sp_triplet;	/**< vehicle global position setpoint triplet */
@@ -912,7 +912,6 @@ MulticopterPositionControl::task_main()
 	_local_pos_sp_sub = orb_subscribe(ORB_ID(vehicle_local_position_setpoint));
 	_global_vel_sp_sub = orb_subscribe(ORB_ID(vehicle_global_velocity_setpoint));
 
-
 	parameters_update(true);
 
 	/* initialize values of critical structs until first regular update */
@@ -1350,7 +1349,7 @@ MulticopterPositionControl::task_main()
 			reset_int_xy = true;
 		}
 
-		if(!_control_mode.flag_control_velocity_enabled) {
+        if(!_control_mode.flag_control_velocity_enabled && !_control_mode.flag_control_offboard_enabled) {
 			/* generate attitude setpoint from manual controls */
 
 			/* move yaw setpoint */

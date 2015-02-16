@@ -124,7 +124,7 @@ private:
 	bool	_task_should_exit;		/**< if true, task_main() should exit */
     int		_control_task;			/**< task handle */
 
-    int _mavlink_fd;
+    int     _mavlink_fd;
 
 	int		_v_att_sub;				/**< vehicle attitude subscription */
 	int		_v_att_sp_sub;			/**< vehicle attitude setpoint subscription */
@@ -556,7 +556,6 @@ MulticopterAttitudeControl::control_attitude(float dt)
     vehicle_attitude_setpoint_poll();
 
     // mavlink_log_info(_mavlink_fd, "[mac] r: %.2f, p: %.2f, y: %.2f, t: %.2f\n", (double)_v_att_sp.roll_body, (double)_v_att_sp.pitch_body, (double)_v_att_sp.yaw_body, (double)_v_att_sp.thrust);
-    // mavlink_log_info(_mavlink_fd, "[mac] r: %.2f, p: %.2f, y: %.2f", (double)_v_att.roll, (double)_v_att.pitch, (double)_v_att.yaw);
 
     _thrust_sp = _v_att_sp.thrust;
 
@@ -746,19 +745,21 @@ MulticopterAttitudeControl::task_main()
 			}
 
 			/* copy attitude topic */
-			orb_copy(ORB_ID(vehicle_attitude), _v_att_sub, &_v_att);
+            orb_copy(ORB_ID(vehicle_attitude), _v_att_sub, &_v_att);
+
+            // mavlink_log_info(_mavlink_fd, "[mac] r: %.2f, p: %.2f, y: %.2f", (double)_v_att.roll, (double)_v_att.pitch, (double)_v_att.yaw);
 
 			/* check for updates in other topics */
 			parameter_update_poll();
 			vehicle_control_mode_poll();
 			arming_status_poll();
 			vehicle_manual_poll();
-			vehicle_status_poll();
+            vehicle_status_poll();
 
 			if (_v_control_mode.flag_control_attitude_enabled) {
-				control_attitude(dt);
+                control_attitude(dt);
 
-				/* publish attitude rates setpoint */
+                /* publish attitude rates setpoint */
 				_v_rates_sp.roll = _rates_sp(0);
 				_v_rates_sp.pitch = _rates_sp(1);
 				_v_rates_sp.yaw = _rates_sp(2);
