@@ -250,7 +250,7 @@ private:
     void        control_offboard(float dt);
 
     bool        cross_sphere_line(const math::Vector<3>& sphere_c, float sphere_r,
-                    const math::Vector<3> line_a, const math::Vector<3> line_b, math::Vector<3>& res);
+                                  const math::Vector<3> line_a, const math::Vector<3> line_b, math::Vector<3>& res);
 
     /**
      * Set position setpoint for AUTO
@@ -276,13 +276,13 @@ private:
 namespace pos_control
 {
 
-/* oddly, ERROR is not defined for c++ */
+    /* oddly, ERROR is not defined for c++ */
 #ifdef ERROR
 # undef ERROR
 #endif
-static const int ERROR = -1;
+    static const int ERROR = -1;
 
-MulticopterPositionControl  *g_control;
+    MulticopterPositionControl  *g_control;
 }
 
 MulticopterPositionControl::MulticopterPositionControl() :
@@ -291,7 +291,7 @@ MulticopterPositionControl::MulticopterPositionControl() :
     _control_task(-1),
     _mavlink_fd(-1),
 
-/* subscriptions */
+    /* subscriptions */
     _att_sub(-1),
     _att_sp_sub(-1),
     _control_mode_sub(-1),
@@ -302,7 +302,7 @@ MulticopterPositionControl::MulticopterPositionControl() :
     _pos_sp_triplet_sub(-1),
     _global_vel_sp_sub(-1),
 
-/* publications */
+    /* publications */
     _att_sp_pub(-1),
     _local_pos_sp_pub(-1),
     _global_vel_sp_pub(-1),
@@ -554,9 +554,9 @@ MulticopterPositionControl::reset_pos_sp()
         _reset_pos_sp = false;
         /* shift position setpoint to make attitude setpoint continuous */
         _pos_sp(0) = _pos(0) + (_vel(0) - PX4_R(_att_sp.R_body, 0, 2) * _att_sp.thrust / _params.vel_p(0)
-                - _params.vel_ff(0) * _sp_move_rate(0)) / _params.pos_p(0);
+                                - _params.vel_ff(0) * _sp_move_rate(0)) / _params.pos_p(0);
         _pos_sp(1) = _pos(1) + (_vel(1) - PX4_R(_att_sp.R_body, 1, 2) * _att_sp.thrust / _params.vel_p(1)
-                - _params.vel_ff(1) * _sp_move_rate(1)) / _params.pos_p(1);
+                                - _params.vel_ff(1) * _sp_move_rate(1)) / _params.pos_p(1);
         mavlink_log_info(_mavlink_fd, "[mpc] reset pos sp: %d, %d", (int)_pos_sp(0), (int)_pos_sp(1));
     }
 }
@@ -715,7 +715,7 @@ MulticopterPositionControl::control_offboard(float dt)
 
 bool
 MulticopterPositionControl::cross_sphere_line(const math::Vector<3>& sphere_c, float sphere_r,
-        const math::Vector<3> line_a, const math::Vector<3> line_b, math::Vector<3>& res)
+                                              const math::Vector<3> line_a, const math::Vector<3> line_b, math::Vector<3>& res)
 {
     /* project center of sphere on line */
     /* normalized AB */
@@ -769,8 +769,8 @@ void MulticopterPositionControl::control_auto(float dt)
 		/* project setpoint to local frame */
 		math::Vector<3> curr_sp;
 		map_projection_project(&_ref_pos,
-				       _pos_sp_triplet.current.lat, _pos_sp_triplet.current.lon,
-				       &curr_sp.data[0], &curr_sp.data[1]);
+                               _pos_sp_triplet.current.lat, _pos_sp_triplet.current.lon,
+                               &curr_sp.data[0], &curr_sp.data[1]);
 		curr_sp(2) = -(_pos_sp_triplet.current.alt - _ref_alt);
 
 		/* scaled space: 1 == position error resulting max allowed speed, L1 = 1 in this space */
@@ -786,8 +786,8 @@ void MulticopterPositionControl::control_auto(float dt)
 			/* follow "previous - current" line */
 			math::Vector<3> prev_sp;
 			map_projection_project(&_ref_pos,
-						   _pos_sp_triplet.previous.lat, _pos_sp_triplet.previous.lon,
-						   &prev_sp.data[0], &prev_sp.data[1]);
+                                   _pos_sp_triplet.previous.lat, _pos_sp_triplet.previous.lon,
+                                   &prev_sp.data[0], &prev_sp.data[1]);
 			prev_sp(2) = -(_pos_sp_triplet.previous.alt - _ref_alt);
 
 			if ((curr_sp - prev_sp).length() > MIN_DIST) {
@@ -804,8 +804,8 @@ void MulticopterPositionControl::control_auto(float dt)
 					if (_pos_sp_triplet.next.valid) {
 						math::Vector<3> next_sp;
 						map_projection_project(&_ref_pos,
-									   _pos_sp_triplet.next.lat, _pos_sp_triplet.next.lon,
-									   &next_sp.data[0], &next_sp.data[1]);
+                                               _pos_sp_triplet.next.lat, _pos_sp_triplet.next.lon,
+                                               &next_sp.data[0], &next_sp.data[1]);
 						next_sp(2) = -(_pos_sp_triplet.next.alt - _ref_alt);
 
 						if ((next_sp - curr_sp).length() > MIN_DIST) {
@@ -830,8 +830,8 @@ void MulticopterPositionControl::control_auto(float dt)
 
 								/* feed forward position setpoint offset */
 								math::Vector<3> pos_ff = prev_curr_s_norm *
-										cos_a_curr_next * cos_b * cos_b * (1.0f - curr_pos_s_len) *
-										(1.0f - expf(-curr_pos_s_len * curr_pos_s_len * 20.0f));
+                                    cos_a_curr_next * cos_b * cos_b * (1.0f - curr_pos_s_len) *
+                                    (1.0f - expf(-curr_pos_s_len * curr_pos_s_len * 20.0f));
 								pos_sp_s += pos_ff;
 							}
 						}
@@ -1122,245 +1122,245 @@ MulticopterPositionControl::task_main()
 
 					float tilt_max = _params.tilt_max_air;
 
-					/* adjust limits for landing mode */
-					if (!_control_mode.flag_control_manual_enabled && _pos_sp_triplet.current.valid &&
-					  	_pos_sp_triplet.current.type == position_setpoint_s::SETPOINT_TYPE_LAND) {
-						/* limit max tilt and min lift when landing */
-						tilt_max = _params.tilt_max_land;
+                    /* adjust limits for landing mode */
+                    if (!_control_mode.flag_control_manual_enabled && _pos_sp_triplet.current.valid &&
+                        _pos_sp_triplet.current.type == position_setpoint_s::SETPOINT_TYPE_LAND) {
+                        /* limit max tilt and min lift when landing */
+                        tilt_max = _params.tilt_max_land;
 
-						if (thr_min < 0.0f) {
-							thr_min = 0.0f;
-						}
-					}
+                        if (thr_min < 0.0f) {
+                            thr_min = 0.0f;
+                        }
+                    }
 
-					/* limit min lift */
-					if (-thrust_sp(2) < thr_min) {
-						thrust_sp(2) = -thr_min;
-						saturation_z = true;
-					}
+                    /* limit min lift */
+                    if (-thrust_sp(2) < thr_min) {
+                        thrust_sp(2) = -thr_min;
+                        saturation_z = true;
+                    }
 
-					if (_control_mode.flag_control_velocity_enabled) {
-						/* limit max tilt */
-						if (thr_min >= 0.0f && tilt_max < M_PI_F / 2 - 0.05f) {
-							/* absolute horizontal thrust */
-							float thrust_sp_xy_len = math::Vector<2>(thrust_sp(0), thrust_sp(1)).length();
+                    if (_control_mode.flag_control_velocity_enabled) {
+                        /* limit max tilt */
+                        if (thr_min >= 0.0f && tilt_max < M_PI_F / 2 - 0.05f) {
+                            /* absolute horizontal thrust */
+                            float thrust_sp_xy_len = math::Vector<2>(thrust_sp(0), thrust_sp(1)).length();
 
-							if (thrust_sp_xy_len > 0.01f) {
-								/* max horizontal thrust for given vertical thrust*/
-								float thrust_xy_max = -thrust_sp(2) * tanf(tilt_max);
+                            if (thrust_sp_xy_len > 0.01f) {
+                                /* max horizontal thrust for given vertical thrust*/
+                                float thrust_xy_max = -thrust_sp(2) * tanf(tilt_max);
 
-								if (thrust_sp_xy_len > thrust_xy_max) {
-									float k = thrust_xy_max / thrust_sp_xy_len;
-									thrust_sp(0) *= k;
-									thrust_sp(1) *= k;
-									saturation_xy = true;
-								}
-							}
-						}
+                                if (thrust_sp_xy_len > thrust_xy_max) {
+                                    float k = thrust_xy_max / thrust_sp_xy_len;
+                                    thrust_sp(0) *= k;
+                                    thrust_sp(1) *= k;
+                                    saturation_xy = true;
+                                }
+                            }
+                        }
 
-					} else {
-						/* thrust compensation for altitude only control mode */
-						float att_comp;
+                    } else {
+                        /* thrust compensation for altitude only control mode */
+                        float att_comp;
 
-						if (PX4_R(_att.R, 2, 2) > TILT_COS_MAX) {
-							att_comp = 1.0f / PX4_R(_att.R, 2, 2);
+                        if (PX4_R(_att.R, 2, 2) > TILT_COS_MAX) {
+                            att_comp = 1.0f / PX4_R(_att.R, 2, 2);
 
-						} else if (PX4_R(_att.R, 2, 2) > 0.0f) {
-							att_comp = ((1.0f / TILT_COS_MAX - 1.0f) / TILT_COS_MAX) * PX4_R(_att.R, 2, 2) + 1.0f;
-							saturation_z = true;
+                        } else if (PX4_R(_att.R, 2, 2) > 0.0f) {
+                            att_comp = ((1.0f / TILT_COS_MAX - 1.0f) / TILT_COS_MAX) * PX4_R(_att.R, 2, 2) + 1.0f;
+                            saturation_z = true;
 
-						} else {
-							att_comp = 1.0f;
-							saturation_z = true;
-						}
+                        } else {
+                            att_comp = 1.0f;
+                            saturation_z = true;
+                        }
 
-						thrust_sp(2) *= att_comp;
-					}
+                        thrust_sp(2) *= att_comp;
+                    }
 
-					/* limit max thrust */
-					float thrust_abs = thrust_sp.length();
+                    /* limit max thrust */
+                    float thrust_abs = thrust_sp.length();
 
-					if (thrust_abs > _params.thr_max) {
-						if (thrust_sp(2) < 0.0f) {
-							if (-thrust_sp(2) > _params.thr_max) {
-								/* thrust Z component is too large, limit it */
-								thrust_sp(0) = 0.0f;
-								thrust_sp(1) = 0.0f;
-								thrust_sp(2) = -_params.thr_max;
-								saturation_xy = true;
-								saturation_z = true;
+                    if (thrust_abs > _params.thr_max) {
+                        if (thrust_sp(2) < 0.0f) {
+                            if (-thrust_sp(2) > _params.thr_max) {
+                                /* thrust Z component is too large, limit it */
+                                thrust_sp(0) = 0.0f;
+                                thrust_sp(1) = 0.0f;
+                                thrust_sp(2) = -_params.thr_max;
+                                saturation_xy = true;
+                                saturation_z = true;
 
-							} else {
-								/* preserve thrust Z component and lower XY, keeping altitude is more important than position */
-								float thrust_xy_max = sqrtf(_params.thr_max * _params.thr_max - thrust_sp(2) * thrust_sp(2));
-								float thrust_xy_abs = math::Vector<2>(thrust_sp(0), thrust_sp(1)).length();
-								float k = thrust_xy_max / thrust_xy_abs;
-								thrust_sp(0) *= k;
-								thrust_sp(1) *= k;
-								saturation_xy = true;
-							}
+                            } else {
+                                /* preserve thrust Z component and lower XY, keeping altitude is more important than position */
+                                float thrust_xy_max = sqrtf(_params.thr_max * _params.thr_max - thrust_sp(2) * thrust_sp(2));
+                                float thrust_xy_abs = math::Vector<2>(thrust_sp(0), thrust_sp(1)).length();
+                                float k = thrust_xy_max / thrust_xy_abs;
+                                thrust_sp(0) *= k;
+                                thrust_sp(1) *= k;
+                                saturation_xy = true;
+                            }
 
-						} else {
-							/* Z component is negative, going down, simply limit thrust vector */
-							float k = _params.thr_max / thrust_abs;
-							thrust_sp *= k;
-							saturation_xy = true;
-							saturation_z = true;
-						}
+                        } else {
+                            /* Z component is negative, going down, simply limit thrust vector */
+                            float k = _params.thr_max / thrust_abs;
+                            thrust_sp *= k;
+                            saturation_xy = true;
+                            saturation_z = true;
+                        }
 
-						thrust_abs = _params.thr_max;
-					}
+                        thrust_abs = _params.thr_max;
+                    }
 
-					/* update integrals */
-					if (_control_mode.flag_control_velocity_enabled && !saturation_xy) {
-						thrust_int(0) += vel_err(0) * _params.vel_i(0) * dt;
-						thrust_int(1) += vel_err(1) * _params.vel_i(1) * dt;
-					}
+                    /* update integrals */
+                    if (_control_mode.flag_control_velocity_enabled && !saturation_xy) {
+                        thrust_int(0) += vel_err(0) * _params.vel_i(0) * dt;
+                        thrust_int(1) += vel_err(1) * _params.vel_i(1) * dt;
+                    }
 
-					if (_control_mode.flag_control_climb_rate_enabled && !saturation_z) {
-						thrust_int(2) += vel_err(2) * _params.vel_i(2) * dt;
+                    if (_control_mode.flag_control_climb_rate_enabled && !saturation_z) {
+                        thrust_int(2) += vel_err(2) * _params.vel_i(2) * dt;
 
-						/* protection against flipping on ground when landing */
-						if (thrust_int(2) > 0.0f) {
-							thrust_int(2) = 0.0f;
-						}
-					}
+                        /* protection against flipping on ground when landing */
+                        if (thrust_int(2) > 0.0f) {
+                            thrust_int(2) = 0.0f;
+                        }
+                    }
 
-					/* calculate attitude setpoint from thrust vector */
-					if (_control_mode.flag_control_velocity_enabled) {
-						/* desired body_z axis = -normalize(thrust_vector) */
-						math::Vector<3> body_x;
-						math::Vector<3> body_y;
-						math::Vector<3> body_z;
+                    /* calculate attitude setpoint from thrust vector */
+                    if (_control_mode.flag_control_velocity_enabled) {
+                        /* desired body_z axis = -normalize(thrust_vector) */
+                        math::Vector<3> body_x;
+                        math::Vector<3> body_y;
+                        math::Vector<3> body_z;
 
-						if (thrust_abs > SIGMA) {
-							body_z = -thrust_sp / thrust_abs;
+                        if (thrust_abs > SIGMA) {
+                            body_z = -thrust_sp / thrust_abs;
 
-						} else {
-							/* no thrust, set Z axis to safe value */
-							body_z.zero();
-							body_z(2) = 1.0f;
-						}
+                        } else {
+                            /* no thrust, set Z axis to safe value */
+                            body_z.zero();
+                            body_z(2) = 1.0f;
+                        }
 
-						/* vector of desired yaw direction in XY plane, rotated by PI/2 */
-						math::Vector<3> y_C(-sinf(_att_sp.yaw_body), cosf(_att_sp.yaw_body), 0.0f);
+                        /* vector of desired yaw direction in XY plane, rotated by PI/2 */
+                        math::Vector<3> y_C(-sinf(_att_sp.yaw_body), cosf(_att_sp.yaw_body), 0.0f);
 
-						if (fabsf(body_z(2)) > SIGMA) {
-							/* desired body_x axis, orthogonal to body_z */
-							body_x = y_C % body_z;
+                        if (fabsf(body_z(2)) > SIGMA) {
+                            /* desired body_x axis, orthogonal to body_z */
+                            body_x = y_C % body_z;
 
-							/* keep nose to front while inverted upside down */
-							if (body_z(2) < 0.0f) {
-								body_x = -body_x;
-							}
+                            /* keep nose to front while inverted upside down */
+                            if (body_z(2) < 0.0f) {
+                                body_x = -body_x;
+                            }
 
-							body_x.normalize();
+                            body_x.normalize();
 
-						} else {
-							/* desired thrust is in XY plane, set X downside to construct correct matrix,
-							 * but yaw component will not be used actually */
-							body_x.zero();
-							body_x(2) = 1.0f;
-						}
+                        } else {
+                            /* desired thrust is in XY plane, set X downside to construct correct matrix,
+                             * but yaw component will not be used actually */
+                            body_x.zero();
+                            body_x(2) = 1.0f;
+                        }
 
-						/* desired body_y axis */
-						body_y = body_z % body_x;
+                        /* desired body_y axis */
+                        body_y = body_z % body_x;
 
-						/* fill rotation matrix */
-						for (int i = 0; i < 3; i++) {
-							R(i, 0) = body_x(i);
-							R(i, 1) = body_y(i);
-							R(i, 2) = body_z(i);
-						}
+                        /* fill rotation matrix */
+                        for (int i = 0; i < 3; i++) {
+                            R(i, 0) = body_x(i);
+                            R(i, 1) = body_y(i);
+                            R(i, 2) = body_z(i);
+                        }
 
-						/* copy rotation matrix to attitude setpoint topic */
-						memcpy(&_att_sp.R_body[0], R.data, sizeof(_att_sp.R_body));
-						_att_sp.R_valid = true;
+                        /* copy rotation matrix to attitude setpoint topic */
+                        memcpy(&_att_sp.R_body[0], R.data, sizeof(_att_sp.R_body));
+                        _att_sp.R_valid = true;
 
-						/* calculate euler angles, for logging only, must not be used for control */
-						math::Vector<3> euler = R.to_euler();
-						_att_sp.roll_body = euler(0);
-						_att_sp.pitch_body = euler(1);
-						/* yaw already used to construct rot matrix, but actual rotation matrix can have different yaw near singularity */
+                        /* calculate euler angles, for logging only, must not be used for control */
+                        math::Vector<3> euler = R.to_euler();
+                        _att_sp.roll_body = euler(0);
+                        _att_sp.pitch_body = euler(1);
+                        /* yaw already used to construct rot matrix, but actual rotation matrix can have different yaw near singularity */
 
-					} else if (!_control_mode.flag_control_manual_enabled) {
-						/* autonomous altitude control without position control (failsafe landing),
-						 * force level attitude, don't change yaw */
-						R.from_euler(0.0f, 0.0f, _att_sp.yaw_body);
+                    } else if (!_control_mode.flag_control_manual_enabled) {
+                        /* autonomous altitude control without position control (failsafe landing),
+                         * force level attitude, don't change yaw */
+                        R.from_euler(0.0f, 0.0f, _att_sp.yaw_body);
 
-						/* copy rotation matrix to attitude setpoint topic */
-						memcpy(&_att_sp.R_body[0], R.data, sizeof(_att_sp.R_body));
-						_att_sp.R_valid = true;
+                        /* copy rotation matrix to attitude setpoint topic */
+                        memcpy(&_att_sp.R_body[0], R.data, sizeof(_att_sp.R_body));
+                        _att_sp.R_valid = true;
 
-						_att_sp.roll_body = 0.0f;
-						_att_sp.pitch_body = 0.0f;
-					}
+                        _att_sp.roll_body = 0.0f;
+                        _att_sp.pitch_body = 0.0f;
+                    }
 
-					_att_sp.thrust = thrust_abs;
+                    _att_sp.thrust = thrust_abs;
 
-					/* save thrust setpoint for logging */
-					_local_pos_sp.acc_x = thrust_sp(0);
-					_local_pos_sp.acc_x = thrust_sp(1);
-					_local_pos_sp.acc_x = thrust_sp(2);
+                    /* save thrust setpoint for logging */
+                    _local_pos_sp.acc_x = thrust_sp(0);
+                    _local_pos_sp.acc_x = thrust_sp(1);
+                    _local_pos_sp.acc_x = thrust_sp(2);
 
-					_att_sp.timestamp = hrt_absolute_time();
+                    _att_sp.timestamp = hrt_absolute_time();
 
 
-				} else {
-					reset_int_z = true;
-				}
-			}
+                } else {
+                    reset_int_z = true;
+                }
+            }
 
-			/* fill local position, velocity and thrust setpoint */
-			_local_pos_sp.timestamp = hrt_absolute_time();
-			_local_pos_sp.x = _pos_sp(0);
-			_local_pos_sp.y = _pos_sp(1);
-			_local_pos_sp.z = _pos_sp(2);
-			_local_pos_sp.yaw = _att_sp.yaw_body;
-			_local_pos_sp.vx = _vel_sp(0);
-			_local_pos_sp.vy = _vel_sp(1);
-			_local_pos_sp.vz = _vel_sp(2);
+            /* fill local position, velocity and thrust setpoint */
+            _local_pos_sp.timestamp = hrt_absolute_time();
+            _local_pos_sp.x = _pos_sp(0);
+            _local_pos_sp.y = _pos_sp(1);
+            _local_pos_sp.z = _pos_sp(2);
+            _local_pos_sp.yaw = _att_sp.yaw_body;
+            _local_pos_sp.vx = _vel_sp(0);
+            _local_pos_sp.vy = _vel_sp(1);
+            _local_pos_sp.vz = _vel_sp(2);
 
-			/* publish local position setpoint */
-			if (_local_pos_sp_pub > 0) {
-				orb_publish(ORB_ID(vehicle_local_position_setpoint), _local_pos_sp_pub, &_local_pos_sp);
-			} else {
-				_local_pos_sp_pub = orb_advertise(ORB_ID(vehicle_local_position_setpoint), &_local_pos_sp);
-			}
+            /* publish local position setpoint */
+            if (_local_pos_sp_pub > 0) {
+                orb_publish(ORB_ID(vehicle_local_position_setpoint), _local_pos_sp_pub, &_local_pos_sp);
+            } else {
+                _local_pos_sp_pub = orb_advertise(ORB_ID(vehicle_local_position_setpoint), &_local_pos_sp);
+            }
 
-		} else {
-			/* position controller disabled, reset setpoints */
-			_reset_alt_sp = true;
-			_reset_pos_sp = true;
-			_mode_auto = false;
-			reset_int_z = true;
-			reset_int_xy = true;
-		}
+        } else {
+            /* position controller disabled, reset setpoints */
+            _reset_alt_sp = true;
+            _reset_pos_sp = true;
+            _mode_auto = false;
+            reset_int_z = true;
+            reset_int_xy = true;
+        }
 
         // generate attitude setpoint from manual controls
-		if(_control_mode.flag_control_manual_enabled && _control_mode.flag_control_attitude_enabled) {
+        if(_control_mode.flag_control_manual_enabled && _control_mode.flag_control_attitude_enabled) {
 
-			// reset yaw setpoint to current position if needed
-			if (reset_yaw_sp) {
-				reset_yaw_sp = false;
-				_att_sp.yaw_body = _att.yaw;
-			}
+            // reset yaw setpoint to current position if needed
+            if (reset_yaw_sp) {
+                reset_yaw_sp = false;
+                _att_sp.yaw_body = _att.yaw;
+            }
 
-			// do not move yaw while arming
-			else if (_manual.z > 0.1f)
-			{
-				const float YAW_OFFSET_MAX = _params.man_yaw_max / _params.mc_att_yaw_p;
+            // do not move yaw while arming
+            else if (_manual.z > 0.1f)
+                {
+                    const float YAW_OFFSET_MAX = _params.man_yaw_max / _params.mc_att_yaw_p;
 
-				_att_sp.yaw_sp_move_rate = _manual.r * _params.man_yaw_max;
-				_att_sp.yaw_body = _wrap_pi(_att_sp.yaw_body + _att_sp.yaw_sp_move_rate * dt);
-				float yaw_offs = _wrap_pi(_att_sp.yaw_body - _att.yaw);
-				if (yaw_offs < - YAW_OFFSET_MAX) {
-					_att_sp.yaw_body = _wrap_pi(_att.yaw - YAW_OFFSET_MAX);
+                    _att_sp.yaw_sp_move_rate = _manual.r * _params.man_yaw_max;
+                    _att_sp.yaw_body = _wrap_pi(_att_sp.yaw_body + _att_sp.yaw_sp_move_rate * dt);
+                    float yaw_offs = _wrap_pi(_att_sp.yaw_body - _att.yaw);
+                    if (yaw_offs < - YAW_OFFSET_MAX) {
+                        _att_sp.yaw_body = _wrap_pi(_att.yaw - YAW_OFFSET_MAX);
 
-				} else if (yaw_offs > YAW_OFFSET_MAX) {
-					_att_sp.yaw_body = _wrap_pi(_att.yaw + YAW_OFFSET_MAX);
+                    } else if (yaw_offs > YAW_OFFSET_MAX) {
+                        _att_sp.yaw_body = _wrap_pi(_att.yaw + YAW_OFFSET_MAX);
+                    }
                 }
-			}
 
 			//Control roll and pitch directly if we no aiding velocity controller is active
 			if(!_control_mode.flag_control_velocity_enabled) {
@@ -1384,10 +1384,11 @@ MulticopterPositionControl::task_main()
 		}
 
 		// publish attitude setpoint
-		if (_att_sp_pub > 0) {
-			orb_publish(ORB_ID(vehicle_attitude_setpoint), _att_sp_pub, &_att_sp);
-
-		} else {
+        if (_att_sp_pub > 0) {
+            if ( !(_control_mode.flag_control_offboard_enabled && _control_mode.flag_control_attitude_enabled) ) {
+                orb_publish(ORB_ID(vehicle_attitude_setpoint), _att_sp_pub, &_att_sp);
+            }
+        } else {
 			_att_sp_pub = orb_advertise(ORB_ID(vehicle_attitude_setpoint), &_att_sp);
         }
 
@@ -1409,11 +1410,11 @@ MulticopterPositionControl::start()
 
 	/* start the task */
 	_control_task = task_spawn_cmd("mc_pos_control",
-				       SCHED_DEFAULT,
-				       SCHED_PRIORITY_MAX - 5,
-				       2000,
-				       (main_t)&MulticopterPositionControl::task_main_trampoline,
-				       nullptr);
+                                   SCHED_DEFAULT,
+                                   SCHED_PRIORITY_MAX - 5,
+                                   2000,
+                                   (main_t)&MulticopterPositionControl::task_main_trampoline,
+                                   nullptr);
 
 	if (_control_task < 0) {
 		warn("task start failed");
