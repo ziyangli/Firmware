@@ -1,6 +1,6 @@
 ############################################################################
 #
-#   Copyright (c) 2012,2013 PX4 Development Team. All rights reserved.
+#   Copyright (c) 2012-2015 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,14 +32,14 @@
 ############################################################################
 
 #
-# Interface driver for the Mikrokopter BLCtrl
+# Rover Steering Demo / Example Application
 #
 
-MODULE_COMMAND		= mkblctrl
+MODULE_COMMAND	= rover_steering_control
 
-SRCS			= mkblctrl.cpp \
-					mkblctrl_params.c
+SRCS		= main.cpp \
+		  params.c
 
-INCLUDE_DIRS		+= $(TOPDIR)/arch/arm/src/stm32 $(TOPDIR)/arch/arm/src/common
+MODULE_STACKSIZE = 1200
 
-MAXOPTIMIZATION	 = -Os
+EXTRACFLAGS = -Wframe-larger-than=1300

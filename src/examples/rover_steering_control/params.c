@@ -1,7 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2013 PX4 Development Team. All rights reserved.
- *   Author: @author Anton Babushkin <anton.babushkin@me.com>
+ *   Copyright (c) 2013-2015 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,33 +31,19 @@
  *
  ****************************************************************************/
 
-/**
- * @file mc_pos_control_params.h
- * Multicopter position controller parameters.
+/*
+ * @file params.c
  *
- * @author Anton Babushkin <anton.babushkin@me.com>
+ * Parameters for rover demo
+ *
+ * @author Lorenz Meier <lorenz@px4.io>
  */
 
-#pragma once
+#include "params.h"
 
-#define PARAM_MPC_THR_MIN_DEFAULT 0.1f
-#define PARAM_MPC_THR_MAX_DEFAULT 1.0f
-#define PARAM_MPC_Z_P_DEFAULT 1.0f
-#define PARAM_MPC_Z_VEL_P_DEFAULT 0.1f
-#define PARAM_MPC_Z_VEL_I_DEFAULT 0.02f
-#define PARAM_MPC_Z_VEL_D_DEFAULT 0.0f
-#define PARAM_MPC_Z_VEL_MAX_DEFAULT 5.0f
-#define PARAM_MPC_Z_FF_DEFAULT 0.5f
-#define PARAM_MPC_XY_P_DEFAULT 1.0f
-#define PARAM_MPC_XY_VEL_P_DEFAULT 0.1f
-#define PARAM_MPC_XY_VEL_I_DEFAULT 0.02f
-#define PARAM_MPC_XY_VEL_D_DEFAULT 0.01f
-#define PARAM_MPC_XY_VEL_MAX_DEFAULT 5.0f
-#define PARAM_MPC_XY_FF_DEFAULT 0.5f
-#define PARAM_MPC_TILTMAX_AIR_DEFAULT 45.0f
-#define PARAM_MPC_TILTMAX_LND_DEFAULT 15.0f
-#define PARAM_MPC_LAND_SPEED_DEFAULT 1.0f
-#define PARAM_MPC_MAN_R_MAX_DEFAULT 35.0f
-#define PARAM_MPC_MAN_P_MAX_DEFAULT 35.0f
-#define PARAM_MPC_MAN_Y_MAX_DEFAULT 120.0f
+/* controller parameters, use max. 15 characters for param name! */
 
+/**
+ *
+ */
+PARAM_DEFINE_FLOAT(RV_YAW_P, 0.1f);

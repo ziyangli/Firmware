@@ -740,7 +740,6 @@ MavlinkReceiver::handle_message_vision_position_estimate(mavlink_message_t *msg)
 void
 MavlinkReceiver::handle_message_set_attitude_target(mavlink_message_t *msg)
 {
-
     // uint64_t timestamp = hrt_absolute_time();
     // warnx("ctrl diff: %llu us", timestamp - _old_timestamp);
     // _old_timestamp = timestamp;
@@ -807,9 +806,7 @@ MavlinkReceiver::handle_message_set_attitude_target(mavlink_message_t *msg)
                     mavlink_quaternion_to_dcm(set_attitude_target.q, (float(*)[3])att_sp.R_body);
                     att_sp.R_valid = true;
                     att_sp.thrust = set_attitude_target.thrust;
-
                     att_sp.yaw_sp_move_rate = 0.0;
-
                     // warnx("r:%.2f p:%.2f y: %.2f", (double)att_sp.roll_body, (double)att_sp.pitch_body, (double)att_sp.yaw_body);
                     // float testFloat = 0.0002;
                     // warnx("qw: %.5f , qx: %.5f, qy: %.5f, qz: %.5f, thrust: %.5f, test: %.5f", (double)set_attitude_target.q[0], (double)set_attitude_target.q[1], (double)set_attitude_target.q[2], (double)set_attitude_target.q[3], (double)att_sp.thrust, (double)testFloat);

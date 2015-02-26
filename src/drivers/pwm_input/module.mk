@@ -1,6 +1,6 @@
 ############################################################################
 #
-#   Copyright (c) 2012,2013 PX4 Development Team. All rights reserved.
+#   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,14 +32,10 @@
 ############################################################################
 
 #
-# Interface driver for the Mikrokopter BLCtrl
+# Makefile to build the PWM input driver.
 #
 
-MODULE_COMMAND		= mkblctrl
+MODULE_COMMAND	= pwm_input
 
-SRCS			= mkblctrl.cpp \
-					mkblctrl_params.c
+SRCS		= pwm_input.cpp
 
-INCLUDE_DIRS		+= $(TOPDIR)/arch/arm/src/stm32 $(TOPDIR)/arch/arm/src/common
-
-MAXOPTIMIZATION	 = -Os

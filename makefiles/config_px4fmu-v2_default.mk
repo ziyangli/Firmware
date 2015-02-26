@@ -51,6 +51,8 @@ MODULES		+= drivers/mkblctrl
 # MODULES		+= drivers/mb12xx ## sonar
 # MODULES		+= drivers/px4flow
 
+# MODULES		+= drivers/oreoled
+
 #
 # System commands
 #
@@ -135,6 +137,11 @@ MODULES		+= platforms/nuttx
 # PX4 flow estimator, good for indoors
 #
 MODULES		+= examples/flow_position_estimator
+
+#
+# Rover apps
+#
+MODULES		+= examples/rover_steering_control
 
 #
 # Demo apps
