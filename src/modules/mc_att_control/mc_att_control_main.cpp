@@ -560,10 +560,10 @@ MulticopterAttitudeControl::control_attitude(float dt)
     _thrust_sp = _v_att_sp.thrust;
 
 	/* construct attitude setpoint rotation matrix */
-	math::Matrix<3, 3> R_sp;
-	R_sp.set(_v_att_sp.R_body);
+    math::Matrix<3, 3> R_sp;
+    R_sp.set(_v_att_sp.R_body);
 
-	/* rotation matrix for current state */
+    /* rotation matrix for current state */
 	math::Matrix<3, 3> R;
 	R.set(_v_att.R);
 
@@ -628,16 +628,19 @@ MulticopterAttitudeControl::control_attitude(float dt)
 		/* use fusion of Z axis based rotation and direct rotation */
 		float direct_w = e_R_z_cos * e_R_z_cos * yaw_w;
 		e_R = e_R * (1.0f - direct_w) + e_R_d * direct_w;
-	}
+    }
 
-	/* calculate angular rates setpoint */
-	_rates_sp = _params.att_p.emult(e_R);
+    /* calculate angular rates setpoint */
+    _rates_sp = _params.att_p.emult(e_R);
 
-	/* limit yaw rate */
-	_rates_sp(2) = math::constrain(_rates_sp(2), -_params.yaw_rate_max, _params.yaw_rate_max);
+    /* limit yaw rate */
+    _rates_sp(2) = math::constrain(_rates_sp(2), -_params.yaw_rate_max, _params.yaw_rate_max);
 
-	/* feed forward yaw setpoint rate */
-	_rates_sp(2) += _v_att_sp.yaw_sp_move_rate * yaw_w * _params.yaw_ff;
+    /* feed forward yaw setpoint rate */
+    _rates_sp(2) += _v_att_sp.yaw_sp_move_rate * yaw_w * _params.yaw_ff;
+
+    // mavlink_log_info(_mavlink_fd, "[mac] y: %.2f p: %.2f y_r: %.2f", (double)_v_att_sp.yaw_sp_move_rate, (double)yaw_w, (double)_params.yaw_ff);
+
 }
 
 /*
@@ -762,7 +765,8 @@ MulticopterAttitudeControl::task_main()
                 /* publish attitude rates setpoint */
 				_v_rates_sp.roll = _rates_sp(0);
 				_v_rates_sp.pitch = _rates_sp(1);
-				_v_rates_sp.yaw = _rates_sp(2);
+                _v_rates_sp.yaw = _rates_sp(2);
+
 				_v_rates_sp.thrust = _thrust_sp;
 				_v_rates_sp.timestamp = hrt_absolute_time();
 
