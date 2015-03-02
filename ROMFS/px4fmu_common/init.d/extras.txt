@@ -13,6 +13,7 @@ mavlink stream -d /dev/ttyS6 -s SYS_STATUS -r 5
 ## mavlink stream -d /dev/ttyS6 -s LOCAL_POSITION_NED -r 20
 ## debug
 mavlink stream -d /dev/ttyS6 -s NAMED_VALUE_FLOAT -r 10
+mavlink stream -d /dev/ttyS6 -s STATUSTEXT -r 0
 
 # mavlink stream -d /dev/ttyS6 -s RC_CHANNELS_RAW -r 0 # maximum about 50Hz
 # usleep 100000
