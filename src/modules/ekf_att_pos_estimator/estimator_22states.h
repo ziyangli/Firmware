@@ -1,30 +1,30 @@
 /****************************************************************************
 * Copyright (c) 2014, Paul Riseborough All rights reserved.
-* 
-* Redistribution and use in source and binary forms, with or without 
+*
+* Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
-* Redistributions of source code must retain the above copyright notice, this 
+*
+* Redistributions of source code must retain the above copyright notice, this
 * list of conditions and the following disclaimer.
-* 
-* Redistributions in binary form must reproduce the above copyright notice, 
-* this list of conditions and the following disclaimer in the documentation 
+*
+* Redistributions in binary form must reproduce the above copyright notice,
+* this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
-* Neither the name of the {organization} nor the names of its contributors 
-* may be used to endorse or promote products derived from this software without 
+*
+* Neither the name of the {organization} nor the names of its contributors
+* may be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
-* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
@@ -52,8 +52,6 @@ public:
     AttPosEKF();
     ~AttPosEKF();
 
-
-
     /* ##############################################
      *
      *   M A I N    F I L T E R    P A R A M E T E R S
@@ -66,7 +64,7 @@ public:
      */
 
     float covTimeStepMax; // maximum time allowed between covariance predictions
-    float covDelAngMax; // maximum delta angle between covariance predictions
+    float covDelAngMax;   // maximum delta angle between covariance predictions
     float rngFinderPitch; // pitch angle of laser range finder in radians. Zero is aligned with the Z body axis. Positive is RH rotation about Y body axis.
 
     float yawVarScale;
@@ -87,7 +85,7 @@ public:
     float gyroProcessNoise;
     float accelProcessNoise;
 
-    float EAS2TAS; // ratio f true to equivalent airspeed
+    float EAS2TAS;              // ratio f true to equivalent airspeed
 
     struct mag_state_struct {
         unsigned obsIndex;
@@ -110,83 +108,80 @@ public:
     struct mag_state_struct magstate;
     struct mag_state_struct resetMagState;
 
-
-
-
     // Global variables
-    float KH[EKF_STATE_ESTIMATES][EKF_STATE_ESTIMATES]; //  intermediate result used for covariance updates
-    float KHP[EKF_STATE_ESTIMATES][EKF_STATE_ESTIMATES]; // intermediate result used for covariance updates
-    float P[EKF_STATE_ESTIMATES][EKF_STATE_ESTIMATES]; // covariance matrix
-    float Kfusion[EKF_STATE_ESTIMATES]; // Kalman gains
-    float states[EKF_STATE_ESTIMATES]; // state matrix
+    float KH[EKF_STATE_ESTIMATES][EKF_STATE_ESTIMATES];            // intermediate result used for covariance updates
+    float KHP[EKF_STATE_ESTIMATES][EKF_STATE_ESTIMATES];           // intermediate result used for covariance updates
+    float P[EKF_STATE_ESTIMATES][EKF_STATE_ESTIMATES];             // covariance matrix
+    float Kfusion[EKF_STATE_ESTIMATES];                            // Kalman gains
+    float states[EKF_STATE_ESTIMATES];                             // state matrix
     float resetStates[EKF_STATE_ESTIMATES];
     float storedStates[EKF_STATE_ESTIMATES][EKF_DATA_BUFFER_SIZE]; // state vectors stored for the last 50 time steps
-    uint32_t statetimeStamp[EKF_DATA_BUFFER_SIZE]; // time stamp for each state vector stored
+    uint32_t statetimeStamp[EKF_DATA_BUFFER_SIZE];                 // time stamp for each state vector stored
 
     // Times
     uint64_t lastVelPosFusion;  // the time of the last velocity fusion, in the standard time unit of the filter
 
-    float statesAtVelTime[EKF_STATE_ESTIMATES]; // States at the effective measurement time for posNE and velNED measurements
-    float statesAtPosTime[EKF_STATE_ESTIMATES]; // States at the effective measurement time for posNE and velNED measurements
-    float statesAtHgtTime[EKF_STATE_ESTIMATES]; // States at the effective measurement time for the hgtMea measurement
-    float statesAtMagMeasTime[EKF_STATE_ESTIMATES]; // filter satates at the effective measurement time
+    float statesAtVelTime[EKF_STATE_ESTIMATES];      // States at the effective measurement time for posNE and velNED measurements
+    float statesAtPosTime[EKF_STATE_ESTIMATES];      // States at the effective measurement time for posNE and velNED measurements
+    float statesAtHgtTime[EKF_STATE_ESTIMATES];      // States at the effective measurement time for the hgtMea measurement
+    float statesAtMagMeasTime[EKF_STATE_ESTIMATES];  // filter satates at the effective measurement time
     float statesAtVtasMeasTime[EKF_STATE_ESTIMATES]; // filter states at the effective measurement time
-    float statesAtRngTime[EKF_STATE_ESTIMATES]; // filter states at the effective measurement time
-    float statesAtFlowTime[EKF_STATE_ESTIMATES]; // States at the effective optical flow measurement time
-    float omegaAcrossFlowTime[3]; // angular rates at the effective optical flow measurement time
+    float statesAtRngTime[EKF_STATE_ESTIMATES];      // filter states at the effective measurement time
+    float statesAtFlowTime[EKF_STATE_ESTIMATES];     // States at the effective optical flow measurement time
+    float omegaAcrossFlowTime[3];                    // angular rates at the effective optical flow measurement time
 
     Vector3f correctedDelAng; // delta angles about the xyz body axes corrected for errors (rad)
     Vector3f correctedDelVel; // delta velocities along the XYZ body axes corrected for errors (m/s)
-    Vector3f summedDelAng; // summed delta angles about the xyz body axes corrected for errors (rad)
-    Vector3f summedDelVel; // summed delta velocities along the XYZ body axes corrected for errors (m/s)
-    float accNavMag; // magnitude of navigation accel (- used to adjust GPS obs variance (m/s^2)
-    Vector3f earthRateNED; // earths angular rate vector in NED (rad/s)
-    Vector3f angRate; // angular rate vector in XYZ body axes measured by the IMU (rad/s)
-    Vector3f lastGyroOffset;    // Last gyro offset
+    Vector3f summedDelAng;    // summed delta angles about the xyz body axes corrected for errors (rad)
+    Vector3f summedDelVel;    // summed delta velocities along the XYZ body axes corrected for errors (m/s)
+    float accNavMag;          // magnitude of navigation accel (- used to adjust GPS obs variance (m/s^2)
+    Vector3f earthRateNED;    // earths angular rate vector in NED (rad/s)
+    Vector3f angRate;         // angular rate vector in XYZ body axes measured by the IMU (rad/s)
+    Vector3f lastGyroOffset;  // Last gyro offset
     Vector3f delAngTotal;
 
     Mat3f Tbn; // transformation matrix from body to NED coordinatesFuseOptFlow
     Mat3f Tnb; // transformation amtrix from NED to body coordinates
 
-    Vector3f accel; // acceleration vector in XYZ body axes measured by the IMU (m/s^2)
+    Vector3f accel;          // acceleration vector in XYZ body axes measured by the IMU (m/s^2)
     Vector3f dVelIMU;
     Vector3f dAngIMU;
-    float dtIMU; // time lapsed since the last IMU measurement or covariance update (sec), this may have significant jitter
-    float dtIMUfilt; // average time between IMU measurements (sec)
-    float dtVelPos; // time lapsed since the last position / velocity fusion (seconds), this may have significant jitter
-    float dtVelPosFilt; // average time between position / velocity fusion steps
-    float dtHgtFilt; // average time between height measurement updates
-    float dtGpsFilt; // average time between gps measurement updates
-    uint8_t fusionModeGPS; // 0 = GPS outputs 3D velocity, 1 = GPS outputs 2D velocity, 2 = GPS outputs no velocity
-    float innovVelPos[6]; // innovation output
+    float dtIMU;             // time lapsed since the last IMU measurement or covariance update (sec), this may have significant jitter
+    float dtIMUfilt;         // average time between IMU measurements (sec)
+    float dtVelPos;          // time lapsed since the last position / velocity fusion (seconds), this may have significant jitter
+    float dtVelPosFilt;      // average time between position / velocity fusion steps
+    float dtHgtFilt;         // average time between height measurement updates
+    float dtGpsFilt;         // average time between gps measurement updates
+    uint8_t fusionModeGPS;   // 0 = GPS outputs 3D velocity, 1 = GPS outputs 2D velocity, 2 = GPS outputs no velocity
+    float innovVelPos[6];    // innovation output
     float varInnovVelPos[6]; // innovation variance output
 
-    float velNED[3]; // North, East, Down velocity obs (m/s)
-    float posNE[2]; // North, East position obs (m)
-    float hgtMea; //  measured height (m)
-    float baroHgtOffset;        ///< the baro (weather) offset from normalized altitude
-    float rngMea; // Ground distance
+    float velNED[3];     // North, East, Down velocity obs (m/s)
+    float posNE[2];      // North, East position obs (m)
+    float hgtMea;        //  measured height (m)
+    float baroHgtOffset; ///< the baro (weather) offset from normalized altitude
+    float rngMea;        // Ground distance
 
-    float innovMag[3]; // innovation output
-    float varInnovMag[3]; // innovation variance output
-    Vector3f magData; // magnetometer flux radings in X,Y,Z body axes
-    float flowRadXYcomp[2]; // motion compensated optical flow angular rates(rad/sec)
-    float flowRadXY[2]; // raw (non motion compensated) optical flow angular rates (rad/sec)
-    float innovVtas; // innovation output
-    float innovRng; ///< Range finder innovation
-    float innovOptFlow[2]; // optical flow LOS innovations (rad/sec)
-    float varInnovOptFlow[2]; // optical flow innovations variances (rad/sec)^2
-    float varInnovVtas; // innovation variance output
-    float varInnovRng; // range finder innovation variance
-    float VtasMeas; // true airspeed measurement (m/s)
-    float magDeclination;       ///< magnetic declination
-    double latRef; // WGS-84 latitude of reference point (rad)
-    double lonRef; // WGS-84 longitude of reference point (rad)
-    float hgtRef; // WGS-84 height of reference point (m)
-    bool refSet;                ///< flag to indicate if the reference position has been set
-    Vector3f magBias; // states representing magnetometer bias vector in XYZ body axes
-    unsigned covSkipCount; // Number of state prediction frames (IMU daya updates to skip before doing the covariance prediction
-    uint32_t lastFixTime_ms; // Number of msec since last GPS Fix that was used
+    float innovMag[3];           // innovation output
+    float varInnovMag[3];        // innovation variance output
+    Vector3f magData;            // magnetometer flux radings in X,Y,Z body axes
+    float flowRadXYcomp[2];      // motion compensated optical flow angular rates(rad/sec)
+    float flowRadXY[2];          // raw (non motion compensated) optical flow angular rates (rad/sec)
+    float innovVtas;             // innovation output
+    float innovRng;              ///< Range finder innovation
+    float innovOptFlow[2];       // optical flow LOS innovations (rad/sec)
+    float varInnovOptFlow[2];    // optical flow innovations variances (rad/sec)^2
+    float varInnovVtas;          // innovation variance output
+    float varInnovRng;           // range finder innovation variance
+    float VtasMeas;              // true airspeed measurement (m/s)
+    float magDeclination;        ///< magnetic declination
+    double latRef;               // WGS-84 latitude of reference point (rad)
+    double lonRef;               // WGS-84 longitude of reference point (rad)
+    float hgtRef;                // WGS-84 height of reference point (m)
+    bool refSet;                 ///< flag to indicate if the reference position has been set
+    Vector3f magBias;            // states representing magnetometer bias vector in XYZ body axes
+    unsigned covSkipCount;       // Number of state prediction frames (IMU daya updates to skip before doing the covariance prediction
+    uint32_t lastFixTime_ms;     // Number of msec since last GPS Fix that was used
     uint32_t globalTimeStamp_ms; // time in msec of current prediction cycle
 
     // GPS input data variables
@@ -338,7 +333,7 @@ public:
     /**
     * @brief
     *   Check the filter inputs and bound its operational state
-    *  
+    *
     *   This check will reset the filter states if required
     *   due to a failure of consistency or timeout checks.
     *   it should be run after the measurement data has been
@@ -350,7 +345,7 @@ public:
     /**
      * @brief
      *   Reset the filter position states
-     *  
+     *
      *   This resets the position to the last GPS measurement
      *   or to zero in case of static position.
      */
@@ -375,7 +370,7 @@ public:
 protected:
 
     /**
-    * @brief 
+    * @brief
     *   Initializes algorithm parameters to safe default values
     **/
     void InitialiseParameters();
@@ -391,7 +386,7 @@ protected:
     /**
      * @brief
      *   Reset the height state.
-     *  
+     *
      *   This resets the height state with the last altitude measurements
      */
     void ResetHeight();
@@ -399,7 +394,7 @@ protected:
     void AttitudeInit(float ax, float ay, float az, float mx, float my, float mz, float declination, float *initQuat);
 
     void ResetStoredStates();
-    
+
 private:
     bool _onGround;    ///< boolean true when the flight vehicle is on the ground (not flying)
 
@@ -408,4 +403,3 @@ private:
 uint32_t millis();
 
 uint64_t getMicros();
-

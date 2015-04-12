@@ -78,22 +78,22 @@
 #include "inertial_filter.h"
 
 #define MIN_VALID_W 0.00001f
-#define PUB_INTERVAL 10000	// limit publish rate to 100 Hz
-#define EST_BUF_SIZE 250000 / PUB_INTERVAL		// buffer size is 0.5s
+#define PUB_INTERVAL 10000                 // limit publish rate to 100 Hz
+#define EST_BUF_SIZE 250000 / PUB_INTERVAL // buffer size is 0.5s
 
-static bool thread_should_exit = false; /**< Deamon exit flag */
-static bool thread_running = false; /**< Deamon status flag */
+static bool thread_should_exit = false;  /**< Deamon exit flag */
+static bool thread_running = false;      /**< Deamon status flag */
 static int position_estimator_inav_task; /**< Handle of deamon task / thread */
 static bool verbose_mode = false;
 
 static const hrt_abstime vision_topic_timeout = 500000;	// Vision topic timeout = 0.5s
-static const hrt_abstime gps_topic_timeout = 500000;		// GPS topic timeout = 0.5s
+static const hrt_abstime gps_topic_timeout = 500000;	// GPS topic timeout = 0.5s
 static const hrt_abstime flow_topic_timeout = 1000000;	// optical flow topic timeout = 1s
-static const hrt_abstime sonar_timeout = 150000;	// sonar timeout = 150ms
+static const hrt_abstime sonar_timeout = 150000;        // sonar timeout = 150ms
 static const hrt_abstime sonar_valid_timeout = 1000000;	// estimate sonar distance during this time after sonar loss
-static const hrt_abstime xy_src_timeout = 2000000;	// estimate position during this time after position sources loss
+static const hrt_abstime xy_src_timeout = 2000000;      // estimate position during this time after position sources loss
 static const uint32_t updates_counter_len = 1000000;
-static const float max_flow = 1.0f;	// max flow value that can be used, rad/s
+static const float max_flow = 1.0f;                     // max flow value that can be used, rad/s
 
 __EXPORT int position_estimator_inav_main(int argc, char *argv[]);
 
@@ -248,9 +248,9 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 
 	int baro_init_cnt = 0;
 	int baro_init_num = 200;
-	float baro_offset = 0.0f;		// baro offset for reference altitude, initialized on start, then adjusted
-	float surface_offset = 0.0f;	// ground level offset from reference altitude
-	float surface_offset_rate = 0.0f;	// surface offset change rate
+    float baro_offset = 0.0f;         // baro offset for reference altitude, initialized on start, then adjusted
+    float surface_offset = 0.0f;      // ground level offset from reference altitude
+    float surface_offset_rate = 0.0f; // surface offset change rate
 
 	hrt_abstime accel_timestamp = 0;
 	hrt_abstime baro_timestamp = 0;
@@ -274,39 +274,40 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 	hrt_abstime t_prev = 0;
 
 	/* store error when sensor updates, but correct on each time step to avoid jumps in estimated value */
-	float acc[] = { 0.0f, 0.0f, 0.0f };	// N E D
-	float acc_bias[] = { 0.0f, 0.0f, 0.0f };	// body frame
-	float corr_baro = 0.0f;		// D
+    float acc[] = { 0.0f, 0.0f, 0.0f };      // N E D
+    float acc_bias[] = { 0.0f, 0.0f, 0.0f }; // body frame
+
+    float corr_baro = 0.0f;                  // D
+
 	float corr_gps[3][2] = {
-		{ 0.0f, 0.0f },		// N (pos, vel)
-		{ 0.0f, 0.0f },		// E (pos, vel)
-		{ 0.0f, 0.0f },		// D (pos, vel)
+        { 0.0f, 0.0f },         // N (pos, vel)
+        { 0.0f, 0.0f },         // E (pos, vel)
+        { 0.0f, 0.0f },         // D (pos, vel)
 	};
 	float w_gps_xy = 1.0f;
 	float w_gps_z = 1.0f;
 
 	float corr_vision[3][2] = {
-		{ 0.0f, 0.0f },		// N (pos, vel)
-		{ 0.0f, 0.0f },		// E (pos, vel)
-		{ 0.0f, 0.0f },		// D (pos, vel)
-	};
+        { 0.0f, 0.0f },         // N (pos, vel)
+        { 0.0f, 0.0f },         // E (pos, vel)
+        { 0.0f, 0.0f },         // D (pos, vel)
+    };
 
-	float corr_sonar = 0.0f;
-	float corr_sonar_filtered = 0.0f;
+    float sonar_prev = 0.0f;
+    hrt_abstime sonar_time = 0;		  // time of last sonar measurement (not filtered)
+    hrt_abstime sonar_valid_time = 0; // time of last sonar measurement used for correction (filtered)
+    float corr_sonar = 0.0f;
+    float corr_sonar_filtered = 0.0f;
 
+    //hrt_abstime flow_prev = 0;		// time of last flow measurement
 	float corr_flow[] = { 0.0f, 0.0f };	// N E
 	float w_flow = 0.0f;
 
-	float sonar_prev = 0.0f;
-	//hrt_abstime flow_prev = 0;			// time of last flow measurement
-	hrt_abstime sonar_time = 0;			// time of last sonar measurement (not filtered)
-	hrt_abstime sonar_valid_time = 0;	// time of last sonar measurement used for correction (filtered)
-
-	bool gps_valid = false;			// GPS is valid
+    bool gps_valid = false;			// GPS is valid
+    bool vision_valid = false;
 	bool sonar_valid = false;		// sonar is valid
 	bool flow_valid = false;		// flow is valid
 	bool flow_accurate = false;		// flow should be accurate (this flag not updated if flow_valid == false)
-	bool vision_valid = false;
 
 	/* declare and safely initialize all structs */
 	struct actuator_controls_s actuator;
@@ -491,8 +492,8 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 				orb_copy(ORB_ID(optical_flow), optical_flow_sub, &flow);
 
 				/* calculate time from previous update */
-//				float flow_dt = flow_prev > 0 ? (flow.flow_timestamp - flow_prev) * 1e-6f : 0.1f;
-//				flow_prev = flow.flow_timestamp;
+                // float flow_dt = flow_prev > 0 ? (flow.flow_timestamp - flow_prev) * 1e-6f : 0.1f;
+                // flow_prev = flow.flow_timestamp;
 
 				if ((flow.ground_distance_m > 0.31f) &&
 					(flow.ground_distance_m < 4.0f) &&
@@ -536,7 +537,7 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 				if (dist_bottom > 0.3f && flow_q > params.flow_q_min && (t < sonar_valid_time + sonar_valid_timeout) && PX4_R(att.R, 2, 2) > 0.7f) {
 					/* distance to surface */
 					float flow_dist = dist_bottom / PX4_R(att.R, 2, 2);
-					/* check if flow if too large for accurate measurements */
+                    /* check if flow is too large for accurate measurements */
 					/* calculate estimated velocity in body frame */
 					float body_v_est[2] = { 0.0f, 0.0f };
 
@@ -551,8 +552,8 @@ int position_estimator_inav_thread_main(int argc, char *argv[])
 					/* convert raw flow to angular flow (rad/s) */
 					float flow_ang[2];
 					//todo check direction of x und y axis
-					flow_ang[0] = flow.pixel_flow_x_integral/(float)flow.integration_timespan*1000000.0f;//flow.flow_raw_x * params.flow_k / 1000.0f / flow_dt;
-					flow_ang[1] = flow.pixel_flow_y_integral/(float)flow.integration_timespan*1000000.0f;//flow.flow_raw_y * params.flow_k / 1000.0f / flow_dt;
+                    flow_ang[0] = flow.pixel_flow_x_integral/(float)flow.integration_timespan*1000000.0f; //flow.flow_raw_x * params.flow_k / 1000.0f / flow_dt;
+                    flow_ang[1] = flow.pixel_flow_y_integral/(float)flow.integration_timespan*1000000.0f; //flow.flow_raw_y * params.flow_k / 1000.0f / flow_dt;
 					/* flow measurements vector */
 					float flow_m[3];
 					flow_m[0] = -flow_ang[0] * flow_dist;

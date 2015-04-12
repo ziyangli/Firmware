@@ -1,30 +1,30 @@
 /****************************************************************************
 * Copyright (c) 2014, Paul Riseborough All rights reserved.
-* 
-* Redistribution and use in source and binary forms, with or without 
+*
+* Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
-* Redistributions of source code must retain the above copyright notice, this 
+*
+* Redistributions of source code must retain the above copyright notice, this
 * list of conditions and the following disclaimer.
-* 
-* Redistributions in binary form must reproduce the above copyright notice, 
-* this list of conditions and the following disclaimer in the documentation 
+*
+* Redistributions in binary form must reproduce the above copyright notice,
+* this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
-* Neither the name of the {organization} nor the names of its contributors 
-* may be used to endorse or promote products derived from this software without 
+*
+* Neither the name of the {organization} nor the names of its contributors
+* may be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
-* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
@@ -166,7 +166,7 @@ AttPosEKF::AttPosEKF() :
     current_ekf_state{},
     last_ekf_error{},
     numericalProtection(true),
-    storeIndex(0),  
+    storeIndex(0),
     storedOmega{},
     Popt{},
     flowStates{},
@@ -185,7 +185,7 @@ AttPosEKF::AttPosEKF() :
     minFlowRng(0.0f),
     moCompR_LOS(0.0f),
 
-    _onGround(true)    
+    _onGround(true)
 {
 
     memset(&last_ekf_error, 0, sizeof(last_ekf_error));
@@ -1151,7 +1151,7 @@ void AttPosEKF::FuseVelposNED()
 
                 if (current_ekf_state.posTimeout) {
                     ResetPosition();
-                    
+
                     // do not fuse position data on this time
                     // step
                     fusePosData = false;
@@ -2856,7 +2856,7 @@ void AttPosEKF::ResetPosition(void)
         for (size_t i = 0; i < EKF_DATA_BUFFER_SIZE; ++i){
             storedStates[7][i] = states[7];
             storedStates[8][i] = states[8];
-        }        
+        }
     }
 }
 
@@ -2868,7 +2868,7 @@ void AttPosEKF::ResetHeight(void)
     // stored horizontal position states to prevent subsequent Barometer measurements from being rejected
     for (size_t i = 0; i < EKF_DATA_BUFFER_SIZE; ++i){
         storedStates[9][i] = states[9];
-    }    
+    }
 }
 
 void AttPosEKF::ResetVelocity(void)
@@ -2887,7 +2887,7 @@ void AttPosEKF::ResetVelocity(void)
         for (size_t i = 0; i < EKF_DATA_BUFFER_SIZE; ++i){
             storedStates[4][i] = states[4];
             storedStates[5][i] = states[5];
-        }                
+        }
     }
 }
 
@@ -2992,7 +2992,7 @@ int AttPosEKF::CheckAndBound(struct ekf_status_report *last_error)
         ekf_debug("re-initializing dynamic");
 
         // Reset and fill error report
-	    InitializeDynamic(velNED, magDeclination);
+        InitializeDynamic(velNED, magDeclination);
 
         ret = 1;
     }
@@ -3135,7 +3135,7 @@ void AttPosEKF::InitializeDynamic(float (&initvelNED)[3], float declination)
     current_ekf_state.velHealth = true;
     current_ekf_state.posHealth = true;
     current_ekf_state.hgtHealth = true;
-    
+
     current_ekf_state.velTimeout = false;
     current_ekf_state.posTimeout = false;
     current_ekf_state.hgtTimeout = false;
