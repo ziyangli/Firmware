@@ -1990,7 +1990,20 @@ protected:
 			msg.y = manual.y * 1000;
 			msg.z = manual.z * 1000;
 			msg.r = manual.r * 1000;
-			msg.buttons = 0;
+            msg.buttons = 0;
+
+            msg.buttons = 0;
+            msg.buttons += manual.offboard_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.acro_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.loiter_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.posctl_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.return_switch;
+            msg.buttons <<= 2;
+            msg.buttons += manual.mode_switch;
 
 			_mavlink->send_message(MAVLINK_MSG_ID_MANUAL_CONTROL, &msg);
 		}
