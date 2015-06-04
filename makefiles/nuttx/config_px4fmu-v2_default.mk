@@ -21,31 +21,32 @@ MODULES		+= drivers/px4fmu
 MODULES		+= drivers/px4io
 MODULES		+= drivers/boards/px4fmu-v2
 MODULES		+= drivers/rgbled
-MODULES		+= drivers/mpu6000
-MODULES		+= drivers/lsm303d
-MODULES		+= drivers/l3gd20
-MODULES		+= drivers/hmc5883
-MODULES		+= drivers/ms5611
-MODULES		+= drivers/mb12xx
-MODULES		+= drivers/sf0x
-MODULES		+= drivers/ll40ls
-MODULES		+= drivers/trone
+MODULES		+= drivers/mpu6000	# acc/gyro
+MODULES		+= drivers/lsm303d	# acc/mag
+MODULES		+= drivers/l3gd20	# gyro
+MODULES		+= drivers/hmc5883	# mag
+MODULES		+= drivers/ms5611	# baro
 MODULES		+= drivers/gps
-MODULES		+= drivers/hil
-MODULES		+= drivers/hott
-MODULES		+= drivers/hott/hott_telemetry
-MODULES		+= drivers/hott/hott_sensors
-MODULES		+= drivers/blinkm
-MODULES		+= drivers/airspeed
-MODULES		+= drivers/ets_airspeed
-MODULES		+= drivers/meas_airspeed
-MODULES		+= drivers/frsky_telemetry
-MODULES		+= modules/sensors
-MODULES		+= drivers/mkblctrl
-MODULES		+= drivers/px4flow
-MODULES		+= drivers/oreoled
-MODULES		+= drivers/gimbal
 MODULES		+= drivers/pwm_input
+## MODULES		+= drivers/hil
+## MODULES		+= drivers/blinkm
+## MODULES		+= drivers/mkblctrl	# rotors control
+## MODULES		+= drivers/px4flow
+
+## MODULES		+= drivers/mb12xx	# sonar
+## MODULES		+= drivers/sf0x     # rangefinder
+## MODULES		+= drivers/ll40ls	# lidar
+## MODULES		+= drivers/trone	# trone
+## MODULES		+= drivers/hott
+## MODULES		+= drivers/hott/hott_telemetry
+## MODULES		+= drivers/hott/hott_sensors
+## MODULES		+= drivers/airspeed
+## MODULES		+= drivers/ets_airspeed
+## MODULES		+= drivers/meas_airspeed
+## MODULES		+= drivers/frsky_telemetry
+## MODULES		+= drivers/oreoled
+## MODULES		+= drivers/gimbal
+MODULES		+= modules/sensors
 
 #
 # System commands
@@ -85,12 +86,12 @@ MODULES		+= modules/position_estimator_inav
 #
 # Vehicle Control
 #
-#MODULES		+= modules/segway # XXX Needs GCC 4.7 fix
-MODULES		+= modules/fw_pos_control_l1
-MODULES		+= modules/fw_att_control
+## MODULES		+= modules/segway # XXX Needs GCC 4.7 fix
+## MODULES		+= modules/fw_pos_control_l1
+## MODULES		+= modules/fw_att_control
 MODULES		+= modules/mc_att_control
 MODULES		+= modules/mc_pos_control
-MODULES 	+= modules/vtol_att_control
+## MODULES 	+= modules/vtol_att_control
 
 #
 # Logging
@@ -123,17 +124,17 @@ MODULES		+= platforms/nuttx
 #
 # OBC challenge
 #
-MODULES		+= modules/bottle_drop
+## MODULES		+= modules/bottle_drop
 
 #
 # PX4 flow estimator, good for indoors
 #
-MODULES		+= examples/flow_position_estimator
+## MODULES		+= examples/flow_position_estimator
 
 #
 # Rover apps
 #
-MODULES		+= examples/rover_steering_control
+## MODULES		+= examples/rover_steering_control
 
 #
 # Demo apps
