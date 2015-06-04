@@ -73,7 +73,7 @@ then
 	# Load parameters
 	#
 	set PARAM_FILE /fs/microsd/params
-	if mtd start
+	if mtd start                # driver for I2C EEPROMS
 	then
 		set PARAM_FILE /fs/mtd_params
 	fi
@@ -102,7 +102,7 @@ then
 	fi
 
 	# Currently unused, but might be useful down the road
-	#if pca8574 start
+	#if pca8574 start          # I2C expansion port?
 	#then
 	#fi
 
